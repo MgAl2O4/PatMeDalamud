@@ -9,5 +9,6 @@
   "RepoUrl": "https://github.com/MgAl2O4/PatMeDalamud",
   "ApplicableVersion": "any",
   "Tags": [ "pat", "lala" ],
+  "CategoryTags": [ "social" ],
   "DalamudApiLevel": 4
 }
