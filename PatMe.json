@@ -4,7 +4,7 @@
   "Punchline": "Pat counter",
   "Description": "Did you ever wonder how many times your Lala gets a pat? Well, now you can count it!",
   "InternalName": "PatMe",
-  "AssemblyVersion": "1.0.0.0",
+  "AssemblyVersion": "1.0.0.1",
   "IconUrl": "https://raw.githubusercontent.com/MgAl2O4/PatMeDalamud/main/assets/icon.png",
   "RepoUrl": "https://github.com/MgAl2O4/PatMeDalamud",
   "ApplicableVersion": "any",
