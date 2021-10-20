@@ -53,12 +53,13 @@ namespace PatMe
         {
             if (message != null && type == XivChatType.StandardEmote)
             {
-                // pet emote payloads: instigator player, raw text (name), unknown, raw text (emote text)
-                if (message.Payloads.Count == 4 &&
-                    message.Payloads[0].Type == PayloadType.Player &&
-                    message.Payloads[3].Type == PayloadType.RawText)
+                // pet emote payloads:
+                // - instigator player, raw text (name), unknown, raw text (emote text)
+                // - instigator player, raw text (name), unknown, icon, raw text (emote text)
+                if (message.Payloads.Count >= 4 && 
+                    message.Payloads[message.Payloads.Count - 1].Type == PayloadType.RawText)
                 {
-                    var textPayload = (message.Payloads[3] as TextPayload);
+                    var textPayload = (message.Payloads[message.Payloads.Count - 1] as TextPayload);
                     var textPayloadContent = textPayload?.Text;
 
                     if (!string.IsNullOrEmpty(textPayloadContent))
@@ -103,7 +104,12 @@ namespace PatMe
             var playerName = GetCurrentPlayerName();
             if (playerName != null)
             {
-                int numPats = configuration.GetPats(playerName) + 1;
+                int numPats = configuration.GetPats(playerName);
+                if (numPats < int.MaxValue)
+                {
+                    numPats = Math.Max(1, numPats + 1);
+                }
+
                 configuration.SetPats(playerName, numPats);
 
                 bool reachedThreshold = IsSpecialPatPat(numPats);
@@ -120,7 +126,7 @@ namespace PatMe
                 }
                 else
                 {
-                    flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, 1, 0, "PAT", " ", 0xff00ff00, 0);
+                    flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, (uint)numPats, 0, "PAT", " ", 0xff00ff00, 0);
                 }
             }
         }
