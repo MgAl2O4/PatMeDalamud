@@ -10,6 +10,7 @@ using Dalamud.Logging;
 using Dalamud.Plugin;
 using ImGuiScene;
 using System;
+using System.Linq;
 
 namespace PatMe
 {
@@ -61,8 +62,9 @@ namespace PatMe
                 {
                     var textPayload = (message.Payloads[message.Payloads.Count - 1] as TextPayload);
                     var textPayloadContent = textPayload?.Text;
+                    var numPlayers = message.Payloads.Count(x => x.Type == PayloadType.Player);
 
-                    if (!string.IsNullOrEmpty(textPayloadContent))
+                    if (!string.IsNullOrEmpty(textPayloadContent) && (numPlayers == 1))
                     {
                         foreach (var testStr in patternPetEmote)
                         {
