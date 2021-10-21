@@ -25,7 +25,7 @@ namespace PatMe
             try
             {
 #if DEBUG
-                // Airell's hook (net packet processing?)
+                // Aireil's hook (net packet processing?)
                 // - OnMagicFuncDelegate(uint a1, uint a2, uint a3, uint a4, uint a5, uint a6, int a7, int a8, Int64 a9, byte a10)
                 // - a1 = addr of instigator
                 // - a2 = 290 for emote (fixed? only in 5.58?)
