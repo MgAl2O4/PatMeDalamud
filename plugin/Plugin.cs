@@ -1,16 +1,10 @@
-﻿using Dalamud.Game.ClientState;
-using Dalamud.Game.Command;
-using Dalamud.Game.Gui;
-using Dalamud.Game.Gui.FlyText;
+﻿using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Gui.Toast;
 using Dalamud.Game.Text;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using ImGuiScene;
 using System;
-using System.Linq;
 
 namespace PatMe
 {
@@ -18,81 +12,46 @@ namespace PatMe
     {
         public string Name => "Pat Me";
 
-        private readonly DalamudPluginInterface pluginInterface;
-        private readonly CommandManager commandManager;
-        private readonly FlyTextGui flyTextGui;
-        private readonly ToastGui toastGui;
-        private readonly ClientState clientState;
-        private readonly ChatGui chatGui;
-
-        private Configuration configuration { get; init; }
         private PluginUI pluginUI;
+        private PatCounter patCounter;
+        private EmoteReader emoteReader;
 
-        private static readonly string[] patternPetEmote = { "gently pats you", "なでた", "streichelt dich sanft", "vous caresse" };
-
-        public Plugin(DalamudPluginInterface pluginInterface, CommandManager commandManager, FlyTextGui flyTextGui, ToastGui toastGui, ClientState clientState, ChatGui chatGui)
+        public Plugin(DalamudPluginInterface pluginInterface)
         {
-            this.pluginInterface = pluginInterface;
-            this.commandManager = commandManager;
-            this.flyTextGui = flyTextGui;
-            this.toastGui = toastGui;
-            this.clientState = clientState;
-            this.chatGui = chatGui;
+            pluginInterface.Create<Service>();
 
-            configuration = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            configuration.Initialize(pluginInterface);
+            Service.plugin = this;
+
+            Service.pluginConfig = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+            Service.pluginConfig.Initialize(pluginInterface);
+
+            patCounter = new PatCounter();
+            patCounter.OnPatPat += OnPatReward;
 
             pluginUI = new PluginUI();
             pluginUI.overlayImage = LoadEmbeddedImage("fan-kit-lala.png");
 
-            commandManager.AddHandler("/patme", new(OnCommand) { HelpMessage = "Show pat counter" });
+            Service.commandManager.AddHandler("/patme", new(OnCommand) { HelpMessage = "Show pat counter" });
             pluginInterface.UiBuilder.Draw += OnDraw;
-            chatGui.ChatMessage += OnChatMessage;
-        }
 
-        private void OnChatMessage(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
-        {
-            if (message != null && type == XivChatType.StandardEmote)
-            {
-                // pet emote payloads:
-                // - instigator player, raw text (name), unknown, raw text (emote text)
-                // - instigator player, raw text (name), unknown, icon, raw text (emote text)
-                if (message.Payloads.Count >= 4 && 
-                    message.Payloads[message.Payloads.Count - 1].Type == PayloadType.RawText)
-                {
-                    var textPayload = (message.Payloads[message.Payloads.Count - 1] as TextPayload);
-                    var textPayloadContent = textPayload?.Text;
-                    var numPlayers = message.Payloads.Count(x => x.Type == PayloadType.Player);
-
-                    if (!string.IsNullOrEmpty(textPayloadContent) && (numPlayers == 1))
-                    {
-                        foreach (var testStr in patternPetEmote)
-                        {
-                            if (textPayloadContent.Contains(testStr))
-                            {
-                                OnPatPat();
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            emoteReader = new EmoteReaderChat();
+            emoteReader.OnPetEmote += (instigator) => patCounter.IncCounter(instigator);
         }
 
         public void Dispose()
         {
             pluginUI.Dispose();
-            commandManager.RemoveHandler("/patme");
-            chatGui.ChatMessage -= OnChatMessage;
+            emoteReader.Dispose();
+            patCounter.Dispose();
+
+            Service.commandManager.RemoveHandler("/patme");
         }
 
         private void OnCommand(string command, string args)
         {
-            var playerName = GetCurrentPlayerName();
-            if (playerName != null)
+            if (patCounter.GetPats(out int numPats))
             {
-                int numPats = configuration.GetPats(playerName);
-                chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.SystemMessage });
+                Service.chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.SystemMessage });
             }
         }
 
@@ -101,57 +60,26 @@ namespace PatMe
             pluginUI.Draw();
         }
 
-        private void OnPatPat()
-        {
-            var playerName = GetCurrentPlayerName();
-            if (playerName != null)
-            {
-                int numPats = configuration.GetPats(playerName);
-                if (numPats < int.MaxValue)
-                {
-                    numPats = Math.Max(1, numPats + 1);
-                }
-
-                configuration.SetPats(playerName, numPats);
-
-                bool reachedThreshold = IsSpecialPatPat(numPats);
-                if (reachedThreshold)
-                {
-                    pluginUI.Show();
-                    toastGui?.ShowQuest($"{numPats} PATS!", new QuestToastOptions
-                    {
-                        Position = QuestToastPosition.Centre,
-                        DisplayCheckmark = true,
-                        IconId = 0,
-                        PlaySound = true
-                    });
-                }
-                else
-                {
-                    flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, (uint)numPats, 0, "PAT", " ", 0xff00ff00, 0);
-                }
-            }
-        }
-
-        private bool IsSpecialPatPat(int value)
+        private void OnPatReward(int numPats)
         {
             // thresholds on: 5, 15, 25, 50, 75, ...
-            if (value < 25)
+            bool isSpecial = (numPats < 25) ? (numPats == 5 || numPats == 15) : ((numPats % 25) == 0);
+            if (isSpecial)
             {
-                return (value == 5) || (value == 15);
+                pluginUI.Show();
+
+                Service.toastGui?.ShowQuest($"{numPats} PATS!", new QuestToastOptions
+                {
+                    Position = QuestToastPosition.Centre,
+                    DisplayCheckmark = true,
+                    IconId = 0,
+                    PlaySound = true
+                });
             }
-
-            return (value % 25) == 0;
-        }
-
-        private string GetCurrentPlayerName()
-        {
-            if (clientState == null || clientState.LocalPlayer == null || clientState.LocalPlayer.Name == null)
+            else
             {
-                return null;
+                Service.flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, (uint)numPats, 0, "PAT", " ", 0xff00ff00, 0);
             }
-
-            return clientState.LocalPlayer.Name.TextValue;
         }
 
         private TextureWrap LoadEmbeddedImage(string name)
@@ -169,7 +97,7 @@ namespace PatMe
                     var contentBytes = new byte[(int)resStream.Length];
                     resStream.Read(contentBytes, 0, contentBytes.Length);
 
-                    resultImage = pluginInterface.UiBuilder.LoadImage(contentBytes);
+                    resultImage = Service.pluginInterface.UiBuilder.LoadImage(contentBytes);
                     resStream.Close();
                 }
             }
