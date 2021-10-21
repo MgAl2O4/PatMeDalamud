@@ -16,6 +16,8 @@ namespace PatMe
         private PatCounter patCounter;
         private EmoteReader emoteReader;
 
+        private bool canUseHooks = true;
+
         public Plugin(DalamudPluginInterface pluginInterface)
         {
             pluginInterface.Create<Service>();
@@ -34,7 +36,8 @@ namespace PatMe
             Service.commandManager.AddHandler("/patme", new(OnCommand) { HelpMessage = "Show pat counter" });
             pluginInterface.UiBuilder.Draw += OnDraw;
 
-            emoteReader = new EmoteReaderChat();
+            var readerHooks = canUseHooks ? new EmoteReaderHooks() : null;
+            emoteReader = (readerHooks?.IsValid ?? false) ? readerHooks : new EmoteReaderChat();
             emoteReader.OnPetEmote += (instigator) => patCounter.IncCounter(instigator);
         }
 
