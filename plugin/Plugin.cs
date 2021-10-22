@@ -2,6 +2,7 @@
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Gui.Toast;
 using Dalamud.Game.Text;
+using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using ImGuiScene;
@@ -13,9 +14,11 @@ namespace PatMe
     {
         public string Name => "Pat Me";
 
+        private readonly WindowSystem windowSystem = new("PatMe");
         private PluginUI pluginUI;
         private EmoteReader emoteReader;
         private UIReaderVoteMvp uiReaderVoteMvp;
+        private PluginWindowConfig windowConfig;
 
         private bool canUseHooks = true;
 
@@ -36,8 +39,12 @@ namespace PatMe
 
             uiReaderVoteMvp = new UIReaderVoteMvp();
 
+            windowConfig = new PluginWindowConfig();
+            windowSystem.AddWindow(windowConfig);
+
             Service.commandManager.AddHandler("/patme", new(OnCommand) { HelpMessage = "Show pat counter" });
             pluginInterface.UiBuilder.Draw += OnDraw;
+            pluginInterface.UiBuilder.OpenConfigUi += OnOpenConfig;
 
             var readerHooks = canUseHooks ? new EmoteReaderHooks() : null;
             emoteReader = (readerHooks?.IsValid ?? false) ? readerHooks : new EmoteReaderChat();
@@ -63,6 +70,7 @@ namespace PatMe
             pluginUI.Dispose();
             emoteReader.Dispose();
             Service.patCounter.Dispose();
+            windowSystem.RemoveAllWindows();
 
             Service.commandManager.RemoveHandler("/patme");
             Service.framework.Update -= Framework_Update;
@@ -87,13 +95,19 @@ namespace PatMe
         private void OnDraw()
         {
             pluginUI.Draw();
+            windowSystem.Draw();
+        }
+
+        private void OnOpenConfig()
+        {
+            windowConfig.IsOpen = true;
         }
 
         private void OnPatReward(int numPats)
         {
             // thresholds on: 5, 15, 25, 50, 75, ...
             bool isSpecial = (numPats < 25) ? (numPats == 5 || numPats == 15) : ((numPats % 25) == 0);
-            if (isSpecial)
+            if (isSpecial && Service.pluginConfig.showSpecialPats)
             {
                 pluginUI.Show();
 

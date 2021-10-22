@@ -12,6 +12,8 @@ namespace PatMe
 
         public Dictionary<string, int> mapPats { get; set; } = new();
 
+        public bool showSpecialPats { get; set; } = true;
+
         [NonSerialized]
         private DalamudPluginInterface pluginInterface;
 
