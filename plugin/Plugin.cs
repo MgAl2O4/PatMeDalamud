@@ -78,7 +78,8 @@ namespace PatMe
                 var (maxPlayerName, maxCount) = Service.patCounter.GetTopPatsInZone();
                 if (maxCount > 0)
                 {
-                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $" most pats from {maxPlayerName}: {maxCount}", Type = XivChatType.SystemMessage });
+                    string countDesc = (maxCount == 1) ? "1 pat" : $"{maxCount} pats";
+                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $"♥ {maxPlayerName}: {countDesc}", Type = XivChatType.SystemMessage });
                 }
             }
         }
