@@ -32,15 +32,13 @@ namespace PatMe
                 currentPlayerName = GetCurrentPlayerName();
             }
 
+            numPats = 0;
             if (currentPlayerName != null)
             {
-                if (Service.pluginConfig.mapPats.TryGetValue(currentPlayerName, out numPats))
-                {
-                    return true;
-                }
+                Service.pluginConfig.mapPats.TryGetValue(currentPlayerName, out numPats);
+                return true;
             }
 
-            numPats = 0;
             return false;
         }
 
