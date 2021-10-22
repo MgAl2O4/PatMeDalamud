@@ -16,6 +16,8 @@ namespace PatMe
 
         public static Configuration pluginConfig;
 
+        public static PatCounter patCounter;
+
         [PluginService]
         public static DalamudPluginInterface pluginInterface { get; private set; } = null!;
 
@@ -39,5 +41,11 @@ namespace PatMe
 
         [PluginService]
         public static ObjectTable objectTable { get; private set; } = null!;
+
+        [PluginService]
+        public static Framework framework { get; private set; } = null!;
+
+        [PluginService]
+        public static GameGui gameGui { get; private set; } = null!;
     }
 }

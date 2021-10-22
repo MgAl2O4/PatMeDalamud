@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.Gui.FlyText;
+﻿using Dalamud.Game;
+using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Gui.Toast;
 using Dalamud.Game.Text;
 using Dalamud.Logging;
@@ -13,8 +14,8 @@ namespace PatMe
         public string Name => "Pat Me";
 
         private PluginUI pluginUI;
-        private PatCounter patCounter;
         private EmoteReader emoteReader;
+        private UIReaderVoteMvp uiReaderVoteMvp;
 
         private bool canUseHooks = true;
 
@@ -27,34 +28,58 @@ namespace PatMe
             Service.pluginConfig = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Service.pluginConfig.Initialize(pluginInterface);
 
-            patCounter = new PatCounter();
-            patCounter.OnPatPat += OnPatReward;
+            Service.patCounter = new PatCounter();
+            Service.patCounter.OnPatPat += OnPatReward;
 
             pluginUI = new PluginUI();
             pluginUI.overlayImage = LoadEmbeddedImage("fan-kit-lala.png");
+
+            uiReaderVoteMvp = new UIReaderVoteMvp();
 
             Service.commandManager.AddHandler("/patme", new(OnCommand) { HelpMessage = "Show pat counter" });
             pluginInterface.UiBuilder.Draw += OnDraw;
 
             var readerHooks = canUseHooks ? new EmoteReaderHooks() : null;
             emoteReader = (readerHooks?.IsValid ?? false) ? readerHooks : new EmoteReaderChat();
-            emoteReader.OnPetEmote += (instigator) => patCounter.IncCounter(instigator);
+            emoteReader.OnPetEmote += (instigator) => Service.patCounter.IncCounter(instigator);
+
+            Service.framework.Update += Framework_Update;
+            Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
+        }
+
+        private void Framework_Update(Framework framework)
+        {
+            float deltaSeconds = (float)framework.UpdateDelta.TotalSeconds;
+            uiReaderVoteMvp.Tick(deltaSeconds);
+        }
+
+        private void ClientState_TerritoryChanged(object sender, ushort e)
+        {
+            Service.patCounter.OnTerritoryChanged(e);
         }
 
         public void Dispose()
         {
             pluginUI.Dispose();
             emoteReader.Dispose();
-            patCounter.Dispose();
+            Service.patCounter.Dispose();
 
             Service.commandManager.RemoveHandler("/patme");
+            Service.framework.Update -= Framework_Update;
+            Service.clientState.TerritoryChanged -= ClientState_TerritoryChanged;
         }
 
         private void OnCommand(string command, string args)
         {
-            if (patCounter.GetPats(out int numPats))
+            if (Service.patCounter.GetPats(out int numPats))
             {
                 Service.chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.SystemMessage });
+
+                var (maxPlayerName, maxCount) = Service.patCounter.GetTopPatsInZone();
+                if (maxCount > 0)
+                {
+                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $" most pats from {maxPlayerName}: {maxCount}", Type = XivChatType.SystemMessage });
+                }
             }
         }
 

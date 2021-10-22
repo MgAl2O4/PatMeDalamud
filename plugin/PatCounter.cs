@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PatMe
 {
@@ -6,6 +7,7 @@ namespace PatMe
     {
         public Action<int> OnPatPat;
 
+        private Dictionary<string, int> mapPatsInZone = new();
         private string currentPlayerName;
 
         public PatCounter()
@@ -77,6 +79,15 @@ namespace PatMe
 
                 SetPats(numPats);
             }
+
+            if (mapPatsInZone.TryGetValue(instigatorName, out int numPatsInZone))
+            {
+                mapPatsInZone[instigatorName] = numPatsInZone + 1;
+            }
+            else
+            {
+                mapPatsInZone.Add(instigatorName, 1);
+            }
         }
 
         private string GetCurrentPlayerName()
@@ -87,6 +98,38 @@ namespace PatMe
             }
 
             return Service.clientState.LocalPlayer.Name.TextValue;
+        }
+
+        public (string, int) GetTopPatsInZone()
+        {
+            string maxPatsPlayer = null;
+            int maxPats = 0;
+
+            foreach (var kvp in mapPatsInZone)
+            {
+                if (kvp.Value > maxPats)
+                {
+                    maxPats = kvp.Value;
+                    maxPatsPlayer = kvp.Key;
+                }
+            }
+
+            return (maxPatsPlayer, maxPats);
+        }
+
+        public int GetPatsInCurrentZone(string instigatorName)
+        {
+            if (mapPatsInZone.TryGetValue(instigatorName, out int numPats))
+            {
+                return numPats;
+            }
+
+            return 0;
+        }
+
+        public void OnTerritoryChanged(ushort territoryId)
+        {
+            mapPatsInZone.Clear();
         }
     }
 }
