@@ -86,11 +86,18 @@ namespace PatMe
                 if (targetId == Service.clientState.LocalPlayer.ObjectId)
                 {
                     var instigatorOb = Service.objectTable.FirstOrDefault(x => (ulong)x.Address == instigatorAddr);
-                    if (instigatorOb != null && instigatorOb.ObjectId != targetId)
+                    if (instigatorOb != null)
                     {
-                        var instigatorName = (instigatorOb != null) ? instigatorOb.Name.ToString() : "??";
+                        bool canCount = (instigatorOb.ObjectId != targetId);
+#if DEBUG
+                        canCount = true;
+#endif 
+                        if (canCount)
+                        {
+                            var instigatorName = (instigatorOb != null) ? instigatorOb.Name.ToString() : "??";
 
-                        OnPetEmote?.Invoke(instigatorName);
+                            OnPetEmote?.Invoke(instigatorName);
+                        }
                     }
                 }
             }
