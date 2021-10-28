@@ -22,13 +22,17 @@ namespace PatMe
         public override void Draw()
         {
             bool showSpecialPats = Service.pluginConfig.showSpecialPats;
+            bool showFlyText = Service.pluginConfig.showFlyText;
             bool hasChanges = false;
 
             hasChanges = ImGui.Checkbox("Show notify on reaching pat goals", ref showSpecialPats) || hasChanges;
+            hasChanges = ImGui.Checkbox("Show fly text counter on each emote", ref showFlyText) || hasChanges;
 
             if (hasChanges)
             {
                 Service.pluginConfig.showSpecialPats = showSpecialPats;
+                Service.pluginConfig.showFlyText = showFlyText;
+
                 Service.pluginConfig.Save();
             }
         }

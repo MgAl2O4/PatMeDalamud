@@ -119,7 +119,7 @@ namespace PatMe
                     PlaySound = true
                 });
             }
-            else
+            else if (Service.pluginConfig.showFlyText)
             {
                 Service.flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, (uint)numPats, 0, "PAT", " ", 0xff00ff00, 0);
             }
