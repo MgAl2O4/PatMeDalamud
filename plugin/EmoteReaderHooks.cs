@@ -5,9 +5,12 @@ using System.Linq;
 
 namespace PatMe
 {
-    public class EmoteReaderHooks : EmoteReader
+    public class EmoteReaderHooks : IDisposable
     {
         public const ushort petEmoteId = 105;  // TODO: read from lumina?
+
+        public delegate void PetEmoteDelegate(string instigatorName);
+        public PetEmoteDelegate OnPetEmote;
 
 #if DEBUG
         private delegate void OnMagicDetourDelegate(uint a1, uint a2, uint a3, uint a4, uint a5, uint a6, int a7, int a8, ulong a9, byte a10);
@@ -56,7 +59,7 @@ namespace PatMe
             }
         }
 
-        public override void Dispose()
+        public void Dispose()
         {
 #if DEBUG
             hookMagic?.Dispose();

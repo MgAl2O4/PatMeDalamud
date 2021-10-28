@@ -16,11 +16,9 @@ namespace PatMe
 
         private readonly WindowSystem windowSystem = new("PatMe");
         private PluginUI pluginUI;
-        private EmoteReader emoteReader;
+        private EmoteReaderHooks emoteReader;
         private UIReaderVoteMvp uiReaderVoteMvp;
         private PluginWindowConfig windowConfig;
-
-        private bool canUseHooks = true;
 
         public Plugin(DalamudPluginInterface pluginInterface)
         {
@@ -46,8 +44,7 @@ namespace PatMe
             pluginInterface.UiBuilder.Draw += OnDraw;
             pluginInterface.UiBuilder.OpenConfigUi += OnOpenConfig;
 
-            var readerHooks = canUseHooks ? new EmoteReaderHooks() : null;
-            emoteReader = (readerHooks?.IsValid ?? false) ? readerHooks : new EmoteReaderChat();
+            emoteReader = new EmoteReaderHooks();
             emoteReader.OnPetEmote += (instigator) => Service.patCounter.IncCounter(instigator);
 
             Service.framework.Update += Framework_Update;
