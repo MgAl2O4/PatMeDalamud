@@ -18,7 +18,7 @@ namespace PatMe
         private bool useMagicDetour = false;
 #endif // DEBUG
 
-        public delegate void OnEmoteFuncDelegate(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId, ulong emoteData);
+        public delegate void OnEmoteFuncDelegate(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId);
         private readonly Hook<OnEmoteFuncDelegate> hookEmote;
 
         public bool IsValid = false;
@@ -46,8 +46,7 @@ namespace PatMe
                 }
 #endif // DEBUG
 
-                // func header signature: 48 89 5c 24 18 48 89 7c 24 20 41 56 48 83 ec 20 48 8b 02 4c 8b f1
-                var emoteFuncPtr = Service.sigScanner.ScanText("e8 ?? ?? ?? ?? 48 8d 8f d0 01 00 00 4c 8b ce");
+                var emoteFuncPtr = Service.sigScanner.ScanText("48 89 5c 24 08 48 89 6c 24 10 48 89 74 24 18 48 89 7c 24 20 41 56 48 83 ec 30 48 8b 5c 24 60 48 8b f9 48 81 c1 50 2f 00 00 48");
                 hookEmote = new Hook<OnEmoteFuncDelegate>(emoteFuncPtr, OnEmoteDetour);
                 hookEmote.Enable();
 
@@ -79,10 +78,10 @@ namespace PatMe
         }
 #endif // DEBUG
 
-        void OnEmoteDetour(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId, ulong emoteData)
+        void OnEmoteDetour(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId)
         {
             // unk - some field of event framework singleton? doesn't matter here anyway
-            // PluginLog.Log($"Emote >> unk:{unk:X}, instigatorAddr:{instigatorAddr:X}, emoteId:{emoteId}, targetId:{targetId:X}, emoteData:{emoteData:X}");
+            // PluginLog.Log($"Emote >> unk:{unk:X}, instigatorAddr:{instigatorAddr:X}, emoteId:{emoteId}, targetId:{targetId:X}");
 
             if (emoteId == petEmoteId && Service.clientState.LocalPlayer != null)
             {
