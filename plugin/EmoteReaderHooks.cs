@@ -18,7 +18,7 @@ namespace PatMe
         private bool useMagicDetour = false;
 #endif // DEBUG
 
-        public delegate void OnEmoteFuncDelegate(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId);
+        public delegate void OnEmoteFuncDelegate(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId, ulong unk2);
         private readonly Hook<OnEmoteFuncDelegate> hookEmote;
 
         public bool IsValid = false;
@@ -78,10 +78,10 @@ namespace PatMe
         }
 #endif // DEBUG
 
-        void OnEmoteDetour(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId)
+        void OnEmoteDetour(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId, ulong unk2)
         {
             // unk - some field of event framework singleton? doesn't matter here anyway
-            // PluginLog.Log($"Emote >> unk:{unk:X}, instigatorAddr:{instigatorAddr:X}, emoteId:{emoteId}, targetId:{targetId:X}");
+            // PluginLog.Log($"Emote >> unk:{unk:X}, instigatorAddr:{instigatorAddr:X}, emoteId:{emoteId}, targetId:{targetId:X}, unk2:{unk2:X}");
 
             if (emoteId == petEmoteId && Service.clientState.LocalPlayer != null)
             {
@@ -103,6 +103,8 @@ namespace PatMe
                     }
                 }
             }
+
+            hookEmote.Original(unk, instigatorAddr, emoteId, targetId, unk2);
         }
     }
 }
