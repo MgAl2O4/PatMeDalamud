@@ -84,17 +84,17 @@ namespace PatMe
         private void OnCommand(string command, string args)
         {
             if (Service.patCounter.GetPats(out int numPats))
-                {
-                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.SystemMessage });
+            {
+                Service.chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.SystemMessage });
 
-                    var (maxPlayerName, maxCount) = Service.patCounter.GetTopPatsInZone();
-                    if (maxCount > 0)
-                    {
-                        string countDesc = (maxCount == 1) ? "1 pat" : $"{maxCount} pats";
-                        Service.chatGui.PrintChat(new XivChatEntry() { Message = $"♥ {maxPlayerName}: {countDesc}", Type = XivChatType.SystemMessage });
-                    }
+                var (maxPlayerName, maxCount) = Service.patCounter.GetTopPatsInZone();
+                if (maxCount > 0)
+                {
+                    string countDesc = (maxCount == 1) ? "1 pat" : $"{maxCount} pats";
+                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $"♥ {maxPlayerName}: {countDesc}", Type = XivChatType.SystemMessage });
                 }
             }
+        }
 
         private void OnDraw()
         {
