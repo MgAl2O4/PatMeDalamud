@@ -7,8 +7,6 @@ using Dalamud.Logging;
 using Dalamud.Plugin;
 using ImGuiScene;
 using System;
-using Dalamud.Game.Command;
-using PatMe.plugin;
 
 namespace PatMe
 {
@@ -47,7 +45,7 @@ namespace PatMe
             windowSystem.AddWindow(patCountUI);
 
             Service.commandManager.AddHandler("/patme", new(OnCommand) { HelpMessage = "Show pat counter" });
-            Service.commandManager.AddHandler("/patcount", new CommandInfo(OnCommand) {HelpMessage = "Show persistent pat counter"});
+            Service.commandManager.AddHandler("/patcount", new (OnCommand) { HelpMessage = "Show persistent pat counter" });
             pluginInterface.UiBuilder.Draw += OnDraw;
             pluginInterface.UiBuilder.OpenConfigUi += OnOpenConfig;
 

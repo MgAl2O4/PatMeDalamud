@@ -3,7 +3,7 @@ using System;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-namespace PatMe.plugin
+namespace PatMe
 {
     public class PatCountUI : Window, IDisposable
     {
