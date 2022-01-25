@@ -23,15 +23,18 @@ namespace PatMe
         {
             bool showSpecialPats = Service.pluginConfig.showSpecialPats;
             bool showFlyText = Service.pluginConfig.showFlyText;
+            bool showPatCount = Service.pluginConfig.showPatCount;
             bool hasChanges = false;
 
             hasChanges = ImGui.Checkbox("Show notify on reaching pat goals", ref showSpecialPats) || hasChanges;
             hasChanges = ImGui.Checkbox("Show fly text counter on each emote", ref showFlyText) || hasChanges;
+            hasChanges = ImGui.Checkbox("Persistent window showing pat count", ref showPatCount) || hasChanges;
 
             if (hasChanges)
             {
                 Service.pluginConfig.showSpecialPats = showSpecialPats;
                 Service.pluginConfig.showFlyText = showFlyText;
+                Service.pluginConfig.showPatCount = showPatCount;
 
                 Service.pluginConfig.Save();
             }

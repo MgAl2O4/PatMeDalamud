@@ -7,6 +7,8 @@ using Dalamud.Logging;
 using Dalamud.Plugin;
 using ImGuiScene;
 using System;
+using Dalamud.Game.Command;
+using PatMe.plugin;
 
 namespace PatMe
 {
@@ -19,6 +21,7 @@ namespace PatMe
         private EmoteReaderHooks emoteReader;
         private UIReaderVoteMvp uiReaderVoteMvp;
         private PluginWindowConfig windowConfig;
+        private PatCountUI patCountUI;
 
         public Plugin(DalamudPluginInterface pluginInterface)
         {
@@ -39,6 +42,9 @@ namespace PatMe
 
             windowConfig = new PluginWindowConfig();
             windowSystem.AddWindow(windowConfig);
+
+            patCountUI = new PatCountUI();
+            windowSystem.AddWindow(patCountUI);
 
             Service.commandManager.AddHandler("/patme", new(OnCommand) { HelpMessage = "Show pat counter" });
             pluginInterface.UiBuilder.Draw += OnDraw;
@@ -65,6 +71,7 @@ namespace PatMe
         public void Dispose()
         {
             pluginUI.Dispose();
+            patCountUI.Dispose();
             emoteReader.Dispose();
             Service.patCounter.Dispose();
             windowSystem.RemoveAllWindows();
@@ -77,22 +84,23 @@ namespace PatMe
         private void OnCommand(string command, string args)
         {
             if (Service.patCounter.GetPats(out int numPats))
-            {
-                Service.chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.SystemMessage });
-
-                var (maxPlayerName, maxCount) = Service.patCounter.GetTopPatsInZone();
-                if (maxCount > 0)
                 {
-                    string countDesc = (maxCount == 1) ? "1 pat" : $"{maxCount} pats";
-                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $"♥ {maxPlayerName}: {countDesc}", Type = XivChatType.SystemMessage });
+                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.SystemMessage });
+
+                    var (maxPlayerName, maxCount) = Service.patCounter.GetTopPatsInZone();
+                    if (maxCount > 0)
+                    {
+                        string countDesc = (maxCount == 1) ? "1 pat" : $"{maxCount} pats";
+                        Service.chatGui.PrintChat(new XivChatEntry() { Message = $"♥ {maxPlayerName}: {countDesc}", Type = XivChatType.SystemMessage });
+                    }
                 }
             }
-        }
 
         private void OnDraw()
         {
             pluginUI.Draw();
             windowSystem.Draw();
+            patCountUI.Draw();
         }
 
         private void OnOpenConfig()
