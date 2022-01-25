@@ -7,8 +7,17 @@ namespace PatMe.plugin
 {
     public class PatCountUI : Window, IDisposable
     {
+        private bool visible = false;
+
+        public bool Visible
+        {
+            get { return visible; }
+            set { this.visible = value; }
+        }
+
         public PatCountUI() : base("Pat Count")
         {
+            IsOpen = false;
         }
 
         public void Dispose()
@@ -17,13 +26,20 @@ namespace PatMe.plugin
 
         public override void Draw()
         {
-            if (Service.pluginConfig.showPatCount)
+            if (!Visible)
             {
-                Service.patCounter.GetPats(out var pats);
+                return;
+            }
 
-                ImGui.Begin("Pat Count", flags: ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoScrollbar);
+            Service.patCounter.GetPats(out var pats);
+
+
+            if (ImGui.Begin("Pat Count", ref this.visible, flags: ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoScrollbar))
+            {
                 ImGui.Text($"Head pats: {pats}");
             }
+
+            
         }
     }
 }
