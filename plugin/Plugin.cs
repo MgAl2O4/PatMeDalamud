@@ -45,7 +45,7 @@ namespace PatMe
             windowSystem.AddWindow(patCountUI);
 
             Service.commandManager.AddHandler("/patme", new(OnCommand) { HelpMessage = "Show pat counter" });
-            Service.commandManager.AddHandler("/patcount", new (OnCommand) { HelpMessage = "Show persistent pat counter" });
+            Service.commandManager.AddHandler("/patcount", new(OnCommand) { HelpMessage = "Show persistent pat counter" });
             pluginInterface.UiBuilder.Draw += OnDraw;
             pluginInterface.UiBuilder.OpenConfigUi += OnOpenConfig;
 
@@ -70,7 +70,7 @@ namespace PatMe
         public void Dispose()
         {
             pluginUI.Dispose();
-            patCountUI.Dispose();
+
             emoteReader.Dispose();
             Service.patCounter.Dispose();
             windowSystem.RemoveAllWindows();
@@ -99,16 +99,14 @@ namespace PatMe
             }
             else if (command == "/patcount")
             {
-                patCountUI.Visible = true;
+                patCountUI.Toggle();
             }
-            
         }
 
         private void OnDraw()
         {
             pluginUI.Draw();
             windowSystem.Draw();
-            patCountUI.Draw();
         }
 
         private void OnOpenConfig()
