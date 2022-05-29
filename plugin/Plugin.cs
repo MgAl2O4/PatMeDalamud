@@ -87,13 +87,13 @@ namespace PatMe
             {
                 if (Service.patCounter.GetPats(out int numPats))
                 {
-                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.SystemMessage });
+                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.Notice });
 
                     var (maxPlayerName, maxCount) = Service.patCounter.GetTopPatsInZone();
                     if (maxCount > 0)
                     {
                         string countDesc = (maxCount == 1) ? "1 pat" : $"{maxCount} pats";
-                        Service.chatGui.PrintChat(new XivChatEntry() { Message = $"♥ {maxPlayerName}: {countDesc}", Type = XivChatType.SystemMessage });
+                        Service.chatGui.PrintChat(new XivChatEntry() { Message = $"♥ {maxPlayerName}: {countDesc}", Type = XivChatType.Notice });
                     }
                 }
             }
