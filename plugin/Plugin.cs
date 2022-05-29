@@ -54,6 +54,11 @@ namespace PatMe
 
             Service.framework.Update += Framework_Update;
             Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
+
+            if (Service.pluginConfig.showCounterUI)
+            {
+                patCountUI.IsOpen = true;
+            }
         }
 
         private void Framework_Update(Framework framework)
@@ -112,6 +117,11 @@ namespace PatMe
         private void OnOpenConfig()
         {
             windowConfig.IsOpen = true;
+        }
+
+        public void OnShowCounterConfigChanged(bool wantsUI)
+        {
+            patCountUI.IsOpen = wantsUI;
         }
 
         private void OnPatReward(int numPats)

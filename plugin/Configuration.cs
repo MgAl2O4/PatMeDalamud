@@ -14,6 +14,7 @@ namespace PatMe
 
         public bool showSpecialPats { get; set; } = true;
         public bool showFlyText { get; set; } = true;
+        public bool showCounterUI { get; set; } = false;
 
         [NonSerialized]
         private DalamudPluginInterface pluginInterface;
