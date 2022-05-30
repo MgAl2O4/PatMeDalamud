@@ -148,7 +148,7 @@ namespace PatMe
             var useName = counter.counterDesc[0].ToString().ToUpper() + counter.counterDesc.Substring(1);
             Service.chatGui.Print($"{useName} counter: {numEmotes}");
 
-            var (maxPlayerName, maxCount) = Service.patCounter.GetTopEmotesInZone();
+            var (maxPlayerName, maxCount) = counter.GetTopEmotesInZone();
             if (maxCount > 0)
             {
                 string countDesc = (maxCount == 1) ? counter.counterDesc : counter.counterDescPlural;
