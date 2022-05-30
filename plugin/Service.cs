@@ -16,7 +16,7 @@ namespace PatMe
 
         public static Configuration pluginConfig;
 
-        public static PatCounter patCounter;
+        public static EmoteCounter patCounter;
 
         [PluginService]
         public static DalamudPluginInterface pluginInterface { get; private set; } = null!;

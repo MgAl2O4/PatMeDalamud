@@ -1,12 +1,12 @@
 ﻿using Dalamud.Game;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Gui.Toast;
-using Dalamud.Game.Text;
 using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using ImGuiScene;
 using System;
+using System.Collections.Generic;
 
 namespace PatMe
 {
@@ -21,6 +21,8 @@ namespace PatMe
         private PluginWindowConfig windowConfig;
         private PatCountUI patCountUI;
 
+        private List<EmoteCounter> emoteCounters = new();
+
         public Plugin(DalamudPluginInterface pluginInterface)
         {
             pluginInterface.Create<Service>();
@@ -30,8 +32,9 @@ namespace PatMe
             Service.pluginConfig = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Service.pluginConfig.Initialize(pluginInterface);
 
-            Service.patCounter = new PatCounter();
-            Service.patCounter.OnPatPat += OnPatReward;
+            Service.patCounter = new EmoteCounter() { counterEmoteId = EmoteReaderHooks.petEmoteId };
+            Service.patCounter.OnChanged += OnPatReward;
+            emoteCounters.Add(Service.patCounter);
 
             pluginUI = new PluginUI();
             pluginUI.overlayImage = LoadEmbeddedImage("fan-kit-lala.png");
@@ -50,10 +53,11 @@ namespace PatMe
             pluginInterface.UiBuilder.OpenConfigUi += OnOpenConfig;
 
             emoteReader = new EmoteReaderHooks();
-            emoteReader.OnPetEmote += (instigator) => Service.patCounter.IncCounter(instigator);
+            emoteReader.OnEmote += (instigator, emoteId) => emoteCounters.ForEach(x => x.OnEmote(instigator, emoteId));
 
             Service.framework.Update += Framework_Update;
             Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
+            Service.clientState.Logout += ClientState_Logout;
 
             if (Service.pluginConfig.showCounterUI)
             {
@@ -69,7 +73,12 @@ namespace PatMe
 
         private void ClientState_TerritoryChanged(object sender, ushort e)
         {
-            Service.patCounter.OnTerritoryChanged(e);
+            emoteCounters.ForEach(x => x.OnTerritoryChanged());
+        }
+
+        private void ClientState_Logout(object sender, EventArgs e)
+        {
+            emoteCounters.ForEach(x => x.OnLogout());
         }
 
         public void Dispose()
@@ -77,28 +86,28 @@ namespace PatMe
             pluginUI.Dispose();
 
             emoteReader.Dispose();
-            Service.patCounter.Dispose();
             windowSystem.RemoveAllWindows();
 
             Service.commandManager.RemoveHandler("/patme");
             Service.commandManager.RemoveHandler("/patcount");
             Service.framework.Update -= Framework_Update;
             Service.clientState.TerritoryChanged -= ClientState_TerritoryChanged;
+            Service.clientState.Logout -= ClientState_Logout;
         }
 
         private void OnCommand(string command, string args)
         {
             if (command == "/patme")
             {
-                if (Service.patCounter.GetPats(out int numPats))
+                int numPats = Service.patCounter.GetCounter();
                 {
-                    Service.chatGui.PrintChat(new XivChatEntry() { Message = $"Pat counter: {numPats}", Type = XivChatType.Notice });
+                    Service.chatGui.Print($"Pat counter: {numPats}");
 
-                    var (maxPlayerName, maxCount) = Service.patCounter.GetTopPatsInZone();
+                    var (maxPlayerName, maxCount) = Service.patCounter.GetTopEmotesInZone();
                     if (maxCount > 0)
                     {
                         string countDesc = (maxCount == 1) ? "1 pat" : $"{maxCount} pats";
-                        Service.chatGui.PrintChat(new XivChatEntry() { Message = $"♥ {maxPlayerName}: {countDesc}", Type = XivChatType.Notice });
+                        Service.chatGui.Print($"♥ {maxPlayerName}: {countDesc}");
                     }
                 }
             }

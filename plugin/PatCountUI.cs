@@ -20,7 +20,7 @@ namespace PatMe
 
         public override void Draw()
         {
-            Service.patCounter.GetPats(out var pats);
+            int pats = Service.patCounter.GetCounter();
 
             ImGui.Text($"Head pats: {pats}");
         }
