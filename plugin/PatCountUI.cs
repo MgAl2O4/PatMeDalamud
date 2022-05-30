@@ -26,7 +26,7 @@ namespace PatMe
             // add more counters if they want to be there
             foreach (var counter in Service.plugin.emoteCounters)
             {
-                if (counter != null && counter != Service.patCounter && !string.IsNullOrEmpty(counter.uiDesc))
+                if (counter != null && counter != Service.patCounter && !string.IsNullOrEmpty(counter.uiDesc) && counter.isActive)
                 {
                     int numEmotes = counter.GetCounter();
                     if (numEmotes > 0)

@@ -7,8 +7,11 @@ namespace PatMe
     public class EmoteCounter
     {
         public Action<int> OnChanged;
+        public bool isActive = true;
 
         public int counterEmoteId;
+        public int[] triggerEmoteIds;
+
         public string counterDesc;
         public string counterDescPlural;
         public string uiDesc;
@@ -18,7 +21,13 @@ namespace PatMe
 
         public void OnEmote(GameObject instigator, int emoteId)
         {
-            if (emoteId == counterEmoteId)
+            bool canUse = emoteId == counterEmoteId;
+            if (triggerEmoteIds != null)
+            {
+                canUse = Array.FindIndex(triggerEmoteIds, x => x == emoteId) >= 0;
+            }
+
+            if (canUse && isActive)
             {
                 IncCounter();
 

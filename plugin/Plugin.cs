@@ -108,7 +108,7 @@ namespace PatMe
                 DescribeCounter(Service.patCounter, false);
                 foreach (var counter in emoteCounters)
                 {
-                    if (counter != null && counter != Service.patCounter)
+                    if (counter != Service.patCounter)
                     {
                         DescribeCounter(counter);
                     }
@@ -122,7 +122,7 @@ namespace PatMe
 
         private void DescribeCounter(EmoteCounter counter, bool hideEmpty = true)
         {
-            if (counter == null || string.IsNullOrEmpty(counter.counterDesc))
+            if (counter == null || string.IsNullOrEmpty(counter.counterDesc) || !counter.isActive)
             {
                 return;
             }
