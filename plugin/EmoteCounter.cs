@@ -4,10 +4,14 @@ using System.Collections.Generic;
 
 namespace PatMe
 {
-    class EmoteCounter
+    public class EmoteCounter
     {
         public Action<int> OnChanged;
+
         public int counterEmoteId;
+        public string counterDesc;
+        public string counterDescPlural;
+        public string uiDesc;
 
         private Dictionary<string, int> mapEmotesInZone = new();
         private string currentPlayerName;

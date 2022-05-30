@@ -21,7 +21,7 @@ namespace PatMe
         private PluginWindowConfig windowConfig;
         private PatCountUI patCountUI;
 
-        private List<EmoteCounter> emoteCounters = new();
+        public readonly List<EmoteCounter> emoteCounters = new();
 
         public Plugin(DalamudPluginInterface pluginInterface)
         {
@@ -32,8 +32,14 @@ namespace PatMe
             Service.pluginConfig = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Service.pluginConfig.Initialize(pluginInterface);
 
-            Service.patCounter = new EmoteCounter() { counterEmoteId = EmoteReaderHooks.petEmoteId };
-            Service.patCounter.OnChanged += OnPatReward;
+            Service.patCounter = new EmoteCounter()
+            {
+                counterEmoteId = EmoteReaderHooks.petEmoteId,
+                counterDesc = "pat",
+                counterDescPlural = "pats",
+                uiDesc = "Head pats",
+            };
+            Service.patCounter.OnChanged += (num) => OnEmoteReward(Service.patCounter, num);
             emoteCounters.Add(Service.patCounter);
 
             pluginUI = new PluginUI();
@@ -99,21 +105,42 @@ namespace PatMe
         {
             if (command == "/patme")
             {
-                int numPats = Service.patCounter.GetCounter();
+                DescribeCounter(Service.patCounter, false);
+                foreach (var counter in emoteCounters)
                 {
-                    Service.chatGui.Print($"Pat counter: {numPats}");
-
-                    var (maxPlayerName, maxCount) = Service.patCounter.GetTopEmotesInZone();
-                    if (maxCount > 0)
+                    if (counter != null && counter != Service.patCounter)
                     {
-                        string countDesc = (maxCount == 1) ? "1 pat" : $"{maxCount} pats";
-                        Service.chatGui.Print($"♥ {maxPlayerName}: {countDesc}");
+                        DescribeCounter(counter);
                     }
                 }
             }
             else if (command == "/patcount")
             {
                 patCountUI.Toggle();
+            }
+        }
+
+        private void DescribeCounter(EmoteCounter counter, bool hideEmpty = true)
+        {
+            if (counter == null || string.IsNullOrEmpty(counter.counterDesc))
+            {
+                return;
+            }
+
+            int numEmotes = counter.GetCounter();
+            if (numEmotes <= 0 && hideEmpty)
+            {
+                return;
+            }
+
+            var useName = counter.counterDesc[0].ToString().ToUpper() + counter.counterDesc.Substring(1);
+            Service.chatGui.Print($"{useName} counter: {numEmotes}");
+
+            var (maxPlayerName, maxCount) = Service.patCounter.GetTopEmotesInZone();
+            if (maxCount > 0)
+            {
+                string countDesc = (maxCount == 1) ? counter.counterDesc : counter.counterDescPlural;
+                Service.chatGui.Print($"♥ {maxPlayerName}: {maxCount} {countDesc}");
             }
         }
 
@@ -133,15 +160,20 @@ namespace PatMe
             patCountUI.IsOpen = wantsUI;
         }
 
-        private void OnPatReward(int numPats)
+        private void OnEmoteReward(EmoteCounter counter, int numEmotes)
         {
             // thresholds on: 5, 15, 25, 50, 75, ...
-            bool isSpecial = (numPats < 25) ? (numPats == 5 || numPats == 15) : ((numPats % 25) == 0);
+            bool isSpecial = (numEmotes < 25) ? (numEmotes == 5 || numEmotes == 15) : ((numEmotes % 25) == 0);
             if (isSpecial && Service.pluginConfig.showSpecialPats)
             {
-                pluginUI.Show();
+                // pats get special rewards.
+                if (counter == Service.patCounter)
+                {
+                    pluginUI.Show();
+                }
 
-                Service.toastGui?.ShowQuest($"{numPats} PATS!", new QuestToastOptions
+                var useDesc = counter.counterDescPlural.ToUpper();
+                Service.toastGui?.ShowQuest($"{numEmotes} {useDesc}!", new QuestToastOptions
                 {
                     Position = QuestToastPosition.Centre,
                     DisplayCheckmark = true,
@@ -151,7 +183,8 @@ namespace PatMe
             }
             else if (Service.pluginConfig.showFlyText)
             {
-                Service.flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, (uint)numPats, 0, "PAT", " ", 0xff00ff00, 0);
+                var useDesc = counter.counterDesc.ToUpper();
+                Service.flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, (uint)numEmotes, 0, useDesc, " ", 0xff00ff00, 0);
             }
         }
 

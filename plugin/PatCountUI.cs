@@ -21,8 +21,20 @@ namespace PatMe
         public override void Draw()
         {
             int pats = Service.patCounter.GetCounter();
+            ImGui.Text($"{Service.patCounter.uiDesc}: {pats}");
 
-            ImGui.Text($"Head pats: {pats}");
+            // add more counters if they want to be there
+            foreach (var counter in Service.plugin.emoteCounters)
+            {
+                if (counter != null && counter != Service.patCounter && !string.IsNullOrEmpty(counter.uiDesc))
+                {
+                    int numEmotes = counter.GetCounter();
+                    if (numEmotes > 0)
+                    {
+                        ImGui.Text($"{counter.uiDesc}: {numEmotes}");
+                    }
+                }
+            }
         }
     }
 }
