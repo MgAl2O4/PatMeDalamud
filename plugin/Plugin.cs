@@ -52,6 +52,7 @@ namespace PatMe
                 uiDesc = "Ranged pats",
             };
             Service.doteCounter.OnChanged += (num) => OnEmoteReward(Service.doteCounter, num);
+            Service.doteCounter.isActive = Service.pluginConfig.canTrackDotes;
             emoteCounters.Add(Service.doteCounter);
 
             pluginUI = new PluginUI();
