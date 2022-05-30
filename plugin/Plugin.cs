@@ -42,6 +42,18 @@ namespace PatMe
             Service.patCounter.OnChanged += (num) => OnEmoteReward(Service.patCounter, num);
             emoteCounters.Add(Service.patCounter);
 
+            // two different emote ids?
+            Service.doteCounter = new EmoteCounter()
+            {
+                counterEmoteId = 146,
+                triggerEmoteIds = new int[] { 146, 147 },
+                counterDesc = "dote",
+                counterDescPlural = "dotes",
+                uiDesc = "Ranged pats",
+            };
+            Service.doteCounter.OnChanged += (num) => OnEmoteReward(Service.doteCounter, num);
+            emoteCounters.Add(Service.doteCounter);
+
             pluginUI = new PluginUI();
             pluginUI.overlayImage = LoadEmbeddedImage("fan-kit-lala.png");
 

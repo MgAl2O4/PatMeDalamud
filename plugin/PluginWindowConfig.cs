@@ -24,11 +24,15 @@ namespace PatMe
             bool showSpecialPats = Service.pluginConfig.showSpecialPats;
             bool showFlyText = Service.pluginConfig.showFlyText;
             bool showCounterOnScreen = Service.pluginConfig.showCounterUI;
+            bool canTrackDotes = Service.pluginConfig.canTrackDotes;
             bool hasChanges = false;
 
             hasChanges = ImGui.Checkbox("Show notify on reaching pat goals", ref showSpecialPats) || hasChanges;
             hasChanges = ImGui.Checkbox("Show fly text counter on each emote", ref showFlyText) || hasChanges;
             hasChanges = ImGui.Checkbox("Show pat counter on screen", ref showCounterOnScreen) || hasChanges;
+
+            ImGui.Separator();
+            hasChanges = ImGui.Checkbox("Track emote: dote", ref canTrackDotes) || hasChanges;
 
             if (showCounterOnScreen != Service.pluginConfig.showCounterUI)
             {
@@ -40,8 +44,11 @@ namespace PatMe
                 Service.pluginConfig.showSpecialPats = showSpecialPats;
                 Service.pluginConfig.showFlyText = showFlyText;
                 Service.pluginConfig.showCounterUI = showCounterOnScreen;
+                Service.pluginConfig.canTrackDotes = canTrackDotes;
 
                 Service.pluginConfig.Save();
+
+                Service.doteCounter.isActive = canTrackDotes;
             }
         }
     }
