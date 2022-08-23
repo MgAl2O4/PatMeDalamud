@@ -21,7 +21,7 @@ namespace PatMe
         {
             try
             {
-                var emoteFuncPtr = Service.sigScanner.ScanText("48 89 5c 24 08 48 89 6c 24 10 48 89 74 24 18 48 89 7c 24 20 41 56 48 83 ec 30 48 8b 5c 24 60 48 8b f9 48 81 c1 50 2f 00 00 48");
+                var emoteFuncPtr = Service.sigScanner.ScanText("48 89 5c 24 08 48 89 6c 24 10 48 89 74 24 18 48 89 7c 24 20 41 56 48 83 ec 30 4c 8b 74 24 60 48 8b d9 48 81 c1 60 2f 00 00");
                 hookEmote = Hook<OnEmoteFuncDelegate>.FromAddress(emoteFuncPtr, OnEmoteDetour);
                 hookEmote.Enable();
 
