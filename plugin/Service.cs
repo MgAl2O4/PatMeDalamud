@@ -7,6 +7,7 @@ using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Gui.Toast;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Ipc;
 
 namespace PatMe
 {
@@ -18,6 +19,7 @@ namespace PatMe
 
         public static EmoteCounter patCounter;
         public static EmoteCounter doteCounter;
+        public static ICallGateProvider<string, ushort, string, uint, object> counterBroadcast;
 
         [PluginService]
         public static DalamudPluginInterface pluginInterface { get; private set; } = null!;

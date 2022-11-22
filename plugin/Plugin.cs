@@ -82,6 +82,8 @@ namespace PatMe
             {
                 patCountUI.IsOpen = true;
             }
+
+            Service.counterBroadcast = pluginInterface.GetIpcProvider<string, ushort, string, uint, object>("patMeEmoteCounter");
         }
 
         private void Framework_Update(Framework framework)

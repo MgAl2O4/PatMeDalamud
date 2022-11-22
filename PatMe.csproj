@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Authors>MgAl2O4</Authors>
-    <Version>1.7.0.1</Version>
+    <Version>1.7.0.2</Version>
     <Description>Pat counter</Description>
     <Copyright>(c) 2022 MgAl2O4</Copyright>
     <PackageProjectUrl>https://github.com/MgAl2O4/PatMeDalamud</PackageProjectUrl>
@@ -44,6 +44,14 @@
     </Reference>
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+	<Reference Include="Lumina">
+      <HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Lumina.Excel">
+      <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

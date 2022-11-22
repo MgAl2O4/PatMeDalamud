@@ -1,4 +1,6 @@
-﻿using Dalamud.Game.ClientState.Objects.Types;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -19,7 +21,7 @@ namespace PatMe
         private Dictionary<string, int> mapEmotesInZone = new();
         private string currentPlayerName;
 
-        public void OnEmote(GameObject instigator, int emoteId)
+        public void OnEmote(GameObject instigator, ushort emoteId)
         {
             bool canUse = emoteId == counterEmoteId;
             if (triggerEmoteIds != null)
@@ -29,7 +31,14 @@ namespace PatMe
 
             if (canUse && isActive)
             {
-                IncCounter();
+                var canNotify = IncCounter();
+                if (canNotify)
+                {
+                    var playerInstigator = instigator as PlayerCharacter;
+                    uint instigatorWorld = (playerInstigator != null) ? playerInstigator.HomeWorld.Id : 0;
+
+                    Service.counterBroadcast.SendMessage(counterDesc, emoteId, instigator.Name.ToString(), instigatorWorld);
+                }
 
                 var instigatorName = (instigator != null) ? instigator.Name.ToString() : "??";
                 if (mapEmotesInZone.TryGetValue(instigatorName, out int counter))

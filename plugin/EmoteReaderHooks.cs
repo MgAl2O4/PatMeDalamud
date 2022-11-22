@@ -10,7 +10,7 @@ namespace PatMe
     {
         public static ushort petEmoteId = 105;  // TODO: read from lumina?
 
-        public Action<GameObject, int> OnEmote;
+        public Action<GameObject, ushort> OnEmote;
 
         public delegate void OnEmoteFuncDelegate(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId, ulong unk2);
         private readonly Hook<OnEmoteFuncDelegate> hookEmote;
