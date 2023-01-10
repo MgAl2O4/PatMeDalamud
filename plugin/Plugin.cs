@@ -199,7 +199,7 @@ namespace PatMe
             else if (Service.pluginConfig.showFlyText)
             {
                 var useDesc = counter.counterDesc.ToUpper();
-                Service.flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, (uint)numEmotes, 0, useDesc, " ", 0xff00ff00, 0);
+                Service.flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, (uint)numEmotes, 0, useDesc, " ", 0xff00ff00, 0, 0);
             }
         }
 
