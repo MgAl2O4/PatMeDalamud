@@ -18,6 +18,7 @@ namespace PatMe
         private PluginUI pluginUI;
         private EmoteReaderHooks emoteReader;
         private UIReaderVoteMvp uiReaderVoteMvp;
+        private UIReaderBannerMIP uiReaderBannerMIP;
         private PluginWindowConfig windowConfig;
         private PatCountUI patCountUI;
 
@@ -59,6 +60,7 @@ namespace PatMe
             pluginUI.overlayImage = LoadEmbeddedImage("fan-kit-lala.png");
 
             uiReaderVoteMvp = new UIReaderVoteMvp();
+            uiReaderBannerMIP = new UIReaderBannerMIP();
 
             windowConfig = new PluginWindowConfig();
             windowSystem.AddWindow(windowConfig);
@@ -90,6 +92,7 @@ namespace PatMe
         {
             float deltaSeconds = (float)framework.UpdateDelta.TotalSeconds;
             uiReaderVoteMvp.Tick(deltaSeconds);
+            uiReaderBannerMIP.Tick(deltaSeconds);
         }
 
         private void ClientState_TerritoryChanged(object sender, ushort e)
