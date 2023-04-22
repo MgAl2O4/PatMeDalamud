@@ -4,9 +4,9 @@ using System;
 
 namespace PatMe
 {
-    public class PatCountUI : Window, IDisposable
+    public class PluginWindowCounter : Window, IDisposable
     {
-        public PatCountUI() : base("Pat Count")
+        public PluginWindowCounter() : base("Pat Count")
         {
             IsOpen = false;
 

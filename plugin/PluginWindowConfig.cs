@@ -23,29 +23,29 @@ namespace PatMe
         {
             bool showSpecialPats = Service.pluginConfig.showSpecialPats;
             bool showFlyText = Service.pluginConfig.showFlyText;
-            bool showCounterOnScreen = Service.pluginConfig.showCounterUI;
+            bool showCounterUI = Service.pluginConfig.showCounterUI;
             bool canTrackDotes = Service.pluginConfig.canTrackDotes;
             bool canTrackHugs = Service.pluginConfig.canTrackHugs;
             bool hasChanges = false;
 
-            hasChanges = ImGui.Checkbox("Show notify on reaching pat goals", ref showSpecialPats) || hasChanges;
-            hasChanges = ImGui.Checkbox("Show fly text counter on each emote", ref showFlyText) || hasChanges;
-            hasChanges = ImGui.Checkbox("Show pat counter on screen", ref showCounterOnScreen) || hasChanges;
+            hasChanges = ImGui.Checkbox("Show emote counter on screen", ref showCounterUI) || hasChanges;
+            hasChanges = ImGui.Checkbox("Use splash screen", ref showSpecialPats) || hasChanges;
+            hasChanges = ImGui.Checkbox("Use fly text counters", ref showFlyText) || hasChanges;
 
             ImGui.Separator();
             hasChanges = ImGui.Checkbox("Track emote: dote", ref canTrackDotes) || hasChanges;
             hasChanges = ImGui.Checkbox("Track emote: hug", ref canTrackHugs) || hasChanges;
 
-            if (showCounterOnScreen != Service.pluginConfig.showCounterUI)
+            if (showCounterUI != Service.pluginConfig.showCounterUI)
             {
-                Service.plugin.OnShowCounterConfigChanged(showCounterOnScreen);
+                Service.plugin.OnShowCounterConfigChanged(showCounterUI);
             }
 
             if (hasChanges)
             {
                 Service.pluginConfig.showSpecialPats = showSpecialPats;
                 Service.pluginConfig.showFlyText = showFlyText;
-                Service.pluginConfig.showCounterUI = showCounterOnScreen;
+                Service.pluginConfig.showCounterUI = showCounterUI;
                 Service.pluginConfig.canTrackDotes = canTrackDotes;
                 Service.pluginConfig.canTrackHugs = canTrackHugs;
 

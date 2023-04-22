@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace PatMe
 {
-    public class PluginUI : IDisposable
+    public class SplashScreenUI : IDisposable
     {
         private enum AnimPhase
         {

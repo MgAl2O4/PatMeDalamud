@@ -15,13 +15,13 @@ namespace PatMe
         public string Name => "Pat Me";
 
         private readonly WindowSystem windowSystem = new("PatMe");
-        private PluginUI pluginUI;
+        private SplashScreenUI splashScreen;
         private EmoteReaderHooks emoteReader;
         private EmoteDataManager emoteDataManager;
         private UIReaderVoteMvp uiReaderVoteMvp;
         private UIReaderBannerMIP uiReaderBannerMIP;
         private PluginWindowConfig windowConfig;
-        private PatCountUI patCountUI;
+        private PluginWindowCounter windowCounters;
 
         public Plugin(DalamudPluginInterface pluginInterface)
         {
@@ -37,8 +37,8 @@ namespace PatMe
             emoteDataManager = new EmoteDataManager();
             emoteDataManager.Initialize(); // config and counters must be ready
 
-            pluginUI = new PluginUI();
-            pluginUI.overlayImage = LoadEmbeddedImage("fan-kit-lala.png");
+            splashScreen = new SplashScreenUI();
+            splashScreen.overlayImage = LoadEmbeddedImage("fan-kit-lala.png");
 
             uiReaderVoteMvp = new UIReaderVoteMvp();
             uiReaderBannerMIP = new UIReaderBannerMIP();
@@ -46,11 +46,11 @@ namespace PatMe
             windowConfig = new PluginWindowConfig();
             windowSystem.AddWindow(windowConfig);
 
-            patCountUI = new PatCountUI();
-            windowSystem.AddWindow(patCountUI);
+            windowCounters = new PluginWindowCounter();
+            windowSystem.AddWindow(windowCounters);
 
-            Service.commandManager.AddHandler("/patme", new(OnCommand) { HelpMessage = "Show pat counter" });
-            Service.commandManager.AddHandler("/patcount", new(OnCommand) { HelpMessage = "Show persistent pat counter" });
+            Service.commandManager.AddHandler("/patme", new(OnCommandListInChat) { HelpMessage = "Show counters in chat" });
+            Service.commandManager.AddHandler("/patcount", new(OnCommandCounterWindow) { HelpMessage = "Toggle counter UI" });
             pluginInterface.UiBuilder.Draw += OnDraw;
             pluginInterface.UiBuilder.OpenConfigUi += OnOpenConfig;
 
@@ -59,7 +59,7 @@ namespace PatMe
 
             if (Service.pluginConfig.showCounterUI)
             {
-                patCountUI.IsOpen = true;
+                windowCounters.IsOpen = true;
             }
 
             Service.counterBroadcast = pluginInterface.GetIpcProvider<string, ushort, string, uint, object>("patMeEmoteCounter");
@@ -75,7 +75,7 @@ namespace PatMe
 
         public void Dispose()
         {
-            pluginUI.Dispose();
+            splashScreen.Dispose();
 
             emoteReader.Dispose();
             emoteDataManager.Dispose();
@@ -123,28 +123,26 @@ namespace PatMe
             Service.emoteCounters.Add(hugCounter);
         }
 
-        private void OnCommand(string command, string args)
+        private void OnCommandListInChat(string command, string args)
         {
-            if (command == "/patme")
+            var patCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.PatName);
+            if (patCounter != null)
             {
-                var patCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.PatName);
-                if (patCounter != null)
-                {
-                    DescribeCounter(patCounter, false);
-                }
+                DescribeCounter(patCounter, false);
+            }
 
-                foreach (var counter in Service.emoteCounters)
+            foreach (var counter in Service.emoteCounters)
+            {
+                if (counter != patCounter)
                 {
-                    if (counter != patCounter)
-                    {
-                        DescribeCounter(counter);
-                    }
+                    DescribeCounter(counter);
                 }
             }
-            else if (command == "/patcount")
-            {
-                patCountUI.Toggle();
-            }
+        }
+
+        private void OnCommandCounterWindow(string command, string args)
+        {
+            windowCounters.Toggle();
         }
 
         private void DescribeCounter(EmoteCounter counter, bool hideEmpty = true)
@@ -173,7 +171,7 @@ namespace PatMe
 
         private void OnDraw()
         {
-            pluginUI.Draw();
+            splashScreen.Draw();
             windowSystem.Draw();
         }
 
@@ -184,7 +182,7 @@ namespace PatMe
 
         public void OnShowCounterConfigChanged(bool wantsUI)
         {
-            patCountUI.IsOpen = wantsUI;
+            windowCounters.IsOpen = wantsUI;
         }
 
         private void OnEmoteReward(EmoteCounter counter, uint numEmotes)
@@ -196,7 +194,7 @@ namespace PatMe
                 // pats get special rewards.
                 if (counter.Name == EmoteConstants.PatName)
                 {
-                    pluginUI.Show();
+                    splashScreen.Show();
                 }
 
                 var useDesc = counter.descPlural.ToUpper();
