@@ -21,6 +21,7 @@ namespace PatMe
         public void Dispose()
         {
             Service.clientState.TerritoryChanged -= ClientState_TerritoryChanged;
+            Service.clientState.Login -= ClientState_Logout;
             Service.clientState.Logout -= ClientState_Logout;
         }
 
@@ -49,7 +50,16 @@ namespace PatMe
 
             foreach (var counter in Service.emoteCounters)
             {
-                needsSave = counter.OnEmote(instigator, emoteId) || needsSave;
+                var hasChanges = counter.OnEmote(instigator, emoteId);
+                if (!hasChanges)
+                {
+                    continue;
+                }
+
+                uint instigatorWorld = (instigator != null) ? instigator.HomeWorld.Id : 0;
+                Service.counterBroadcast.SendMessage(counter.descSingular, emoteId, instigator.Name.ToString(), instigatorWorld);
+
+                needsSave = true;
             }
 
             if (needsSave)
