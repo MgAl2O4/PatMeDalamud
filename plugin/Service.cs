@@ -17,7 +17,7 @@ namespace PatMe
         public static Plugin plugin;
 
         public static Configuration pluginConfig;
-
+        public static SplashScreenUI splashScreen;
         public static List<EmoteCounter> emoteCounters;
         public static ICallGateProvider<string, ushort, string, uint, object> counterBroadcast;
 

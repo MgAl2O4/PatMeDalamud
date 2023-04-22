@@ -10,9 +10,9 @@ namespace PatMe
         private int[] emoteIds;
         private string emoteName;
 
-        public Action<uint> OnChanged;
         public EmoteCounterDB dataLink;
         public bool isActive = true;
+        public List<IEmoteReward> rewards;
 
         public string descSingular;
         public string descPlural;
@@ -41,7 +41,6 @@ namespace PatMe
             }
 
             dataLink.Value++;
-            OnChanged?.Invoke(Value);
 
             var instigatorName = instigator.Name.ToString();
             if (mapEmotesInZone.TryGetValue(instigatorName, out int counter))
@@ -51,6 +50,18 @@ namespace PatMe
             else
             {
                 mapEmotesInZone.Add(instigatorName, 1);
+            }
+
+            foreach (var rewardOb in rewards)
+            {
+                if (rewardOb != null)
+                {
+                    rewardOb.OnCounterChanged(this, instigator, out bool stopProcessing);
+                    if (stopProcessing)
+                    {
+                        break;
+                    }
+                }
             }
 
             return true;

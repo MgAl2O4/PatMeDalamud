@@ -37,17 +37,23 @@ namespace PatMe
             }
 
             bool showSpecialPats = Service.pluginConfig.showSpecialPats;
+            bool showProgressNotify = Service.pluginConfig.showProgressNotify;
             bool showFlyText = Service.pluginConfig.showFlyText;
+            bool showFlyTextNames = Service.pluginConfig.showFlyTextNames;
             bool bHasChangesRewards = false;
 
             ImGui.Separator();
             bHasChangesRewards = ImGui.Checkbox("Use splash screen", ref showSpecialPats) || bHasChangesRewards;
+            bHasChangesRewards = ImGui.Checkbox("Use progress notify", ref showProgressNotify) || bHasChangesRewards;
             bHasChangesRewards = ImGui.Checkbox("Use fly text counters", ref showFlyText) || bHasChangesRewards;
+            bHasChangesRewards = ImGui.Checkbox("Include names in fly text", ref showFlyTextNames) || bHasChangesRewards;
 
             if (bHasChangesRewards)
             {
                 Service.pluginConfig.showSpecialPats = showSpecialPats;
+                Service.pluginConfig.showProgressNotify = showProgressNotify;
                 Service.pluginConfig.showFlyText = showFlyText;
+                Service.pluginConfig.showFlyTextNames = showFlyTextNames;
             }
 
             bool canTrackDotes = Service.pluginConfig.canTrackDotes;
