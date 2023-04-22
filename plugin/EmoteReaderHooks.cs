@@ -8,8 +8,6 @@ namespace PatMe
 {
     public class EmoteReaderHooks : IDisposable
     {
-        public static ushort petEmoteId = 105;  // TODO: read from lumina?
-
         public Action<GameObject, ushort> OnEmote;
 
         public delegate void OnEmoteFuncDelegate(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId, ulong unk2);
