@@ -57,13 +57,13 @@ namespace PatMe
             emoteReader = new EmoteReaderHooks();
             emoteReader.OnEmote += (instigator, emoteId) => emoteDataManager.OnEmote(instigator as PlayerCharacter, emoteId);
 
-            if (Service.pluginConfig.showCounterUI)
-            {
-                windowCounters.IsOpen = true;
-            }
-
             Service.counterBroadcast = pluginInterface.GetIpcProvider<string, ushort, string, uint, object>("patMeEmoteCounter");
             Service.framework.Update += Framework_Update;
+            Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
+            Service.clientState.Login += ClientState_Login;
+            Service.clientState.Logout += ClientState_Logout;
+
+            OnCounterWindowConfigChanged();
         }
 
         private void Framework_Update(Framework framework)
@@ -71,6 +71,23 @@ namespace PatMe
             float deltaSeconds = (float)framework.UpdateDelta.TotalSeconds;
             uiReaderVoteMvp.Tick(deltaSeconds);
             uiReaderBannerMIP.Tick(deltaSeconds);
+        }
+
+        private void ClientState_Login(object sender, EventArgs e)
+        {
+            emoteDataManager.OnLogin();
+            OnCounterWindowConfigChanged();
+        }
+
+        private void ClientState_Logout(object sender, EventArgs e)
+        {
+            emoteDataManager.OnLogout();
+            windowCounters.IsOpen = false;
+        }
+
+        private void ClientState_TerritoryChanged(object sender, ushort e)
+        {
+            Service.emoteCounters.ForEach(counter => counter.OnTerritoryChanged());
         }
 
         public void Dispose()
@@ -84,6 +101,9 @@ namespace PatMe
             Service.commandManager.RemoveHandler("/patme");
             Service.commandManager.RemoveHandler("/patcount");
             Service.framework.Update -= Framework_Update;
+            Service.clientState.TerritoryChanged -= ClientState_TerritoryChanged;
+            Service.clientState.Login -= ClientState_Login;
+            Service.clientState.Logout -= ClientState_Logout;
         }
 
         private void CreateEmoteCounters()
@@ -180,9 +200,9 @@ namespace PatMe
             windowConfig.IsOpen = true;
         }
 
-        public void OnShowCounterConfigChanged(bool wantsUI)
+        public void OnCounterWindowConfigChanged()
         {
-            windowCounters.IsOpen = wantsUI;
+            windowCounters.UpdateConfig();
         }
 
         private void OnEmoteReward(EmoteCounter counter, uint numEmotes)

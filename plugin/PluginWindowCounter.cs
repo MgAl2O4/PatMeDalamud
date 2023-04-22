@@ -9,13 +9,33 @@ namespace PatMe
         public PluginWindowCounter() : base("Pat Count")
         {
             IsOpen = false;
-
-            Flags = ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize;
             RespectCloseHotkey = false;
+
+            UpdateConfig();
         }
 
         public void Dispose()
         {
+        }
+
+        public void UpdateConfig()
+        {
+            Flags = ImGuiWindowFlags.NoDecoration |
+                ImGuiWindowFlags.AlwaysAutoResize |
+                ImGuiWindowFlags.NoFocusOnAppearing |
+                ImGuiWindowFlags.NoNav;
+
+            if (Service.pluginConfig.lockCounterUI)
+            {
+                Flags |= ImGuiWindowFlags.NoMove |
+                    ImGuiWindowFlags.NoDocking |
+                    ImGuiWindowFlags.NoMouseInputs;
+            }
+
+            if (Service.pluginConfig.showCounterUI && Service.clientState.IsLoggedIn)
+            {
+                IsOpen = true;
+            }
         }
 
         public override void Draw()

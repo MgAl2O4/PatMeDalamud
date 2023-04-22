@@ -24,6 +24,7 @@ namespace PatMe
         public bool showSpecialPats { get; set; } = true;
         public bool showFlyText { get; set; } = true;
         public bool showCounterUI { get; set; } = false;
+        public bool lockCounterUI { get; set; } = false;
         public bool canTrackDotes { get; set; } = true;
         public bool canTrackHugs { get; set; } = true;
 

@@ -21,35 +21,47 @@ namespace PatMe
 
         public override void Draw()
         {
-            bool showSpecialPats = Service.pluginConfig.showSpecialPats;
-            bool showFlyText = Service.pluginConfig.showFlyText;
             bool showCounterUI = Service.pluginConfig.showCounterUI;
-            bool canTrackDotes = Service.pluginConfig.canTrackDotes;
-            bool canTrackHugs = Service.pluginConfig.canTrackHugs;
-            bool hasChanges = false;
+            bool lockCounterUI = Service.pluginConfig.lockCounterUI;
+            bool hasChangesCounterUI = false;
 
-            hasChanges = ImGui.Checkbox("Show emote counter on screen", ref showCounterUI) || hasChanges;
-            hasChanges = ImGui.Checkbox("Use splash screen", ref showSpecialPats) || hasChanges;
-            hasChanges = ImGui.Checkbox("Use fly text counters", ref showFlyText) || hasChanges;
+            hasChangesCounterUI = ImGui.Checkbox("Show emote counter on screen", ref showCounterUI) || hasChangesCounterUI;
+            hasChangesCounterUI = ImGui.Checkbox("Lock emote counter position", ref lockCounterUI) || hasChangesCounterUI;
 
-            ImGui.Separator();
-            hasChanges = ImGui.Checkbox("Track emote: dote", ref canTrackDotes) || hasChanges;
-            hasChanges = ImGui.Checkbox("Track emote: hug", ref canTrackHugs) || hasChanges;
-
-            if (showCounterUI != Service.pluginConfig.showCounterUI)
+            if (hasChangesCounterUI)
             {
-                Service.plugin.OnShowCounterConfigChanged(showCounterUI);
+                Service.pluginConfig.showCounterUI = showCounterUI;
+                Service.pluginConfig.lockCounterUI = lockCounterUI;
+
+                Service.plugin.OnCounterWindowConfigChanged();
             }
 
-            if (hasChanges)
+            bool showSpecialPats = Service.pluginConfig.showSpecialPats;
+            bool showFlyText = Service.pluginConfig.showFlyText;
+            bool bHasChangesRewards = false;
+
+            ImGui.Separator();
+            bHasChangesRewards = ImGui.Checkbox("Use splash screen", ref showSpecialPats) || bHasChangesRewards;
+            bHasChangesRewards = ImGui.Checkbox("Use fly text counters", ref showFlyText) || bHasChangesRewards;
+
+            if (bHasChangesRewards)
             {
                 Service.pluginConfig.showSpecialPats = showSpecialPats;
                 Service.pluginConfig.showFlyText = showFlyText;
-                Service.pluginConfig.showCounterUI = showCounterUI;
+            }
+
+            bool canTrackDotes = Service.pluginConfig.canTrackDotes;
+            bool canTrackHugs = Service.pluginConfig.canTrackHugs;
+            bool bHasChangesEmotes = false;
+
+            ImGui.Separator();
+            bHasChangesEmotes = ImGui.Checkbox("Track emote: dote", ref canTrackDotes) || bHasChangesEmotes;
+            bHasChangesEmotes = ImGui.Checkbox("Track emote: hug", ref canTrackHugs) || bHasChangesEmotes;
+
+            if (bHasChangesEmotes)
+            {
                 Service.pluginConfig.canTrackDotes = canTrackDotes;
                 Service.pluginConfig.canTrackHugs = canTrackHugs;
-
-                Service.pluginConfig.Save();
 
                 var doteCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.DoteName);
                 if (doteCounter != null)
@@ -62,6 +74,11 @@ namespace PatMe
                 {
                     hugCounter.isActive = canTrackHugs;
                 }
+            }
+
+            if (hasChangesCounterUI || bHasChangesRewards || bHasChangesEmotes)
+            {
+                Service.pluginConfig.Save();
             }
         }
     }

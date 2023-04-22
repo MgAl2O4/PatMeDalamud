@@ -11,36 +11,24 @@ namespace PatMe
 
         public void Initialize()
         {
-            Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
-            Service.clientState.Login += ClientState_Login;
-            Service.clientState.Logout += ClientState_Logout;
-
             UpdateOwner();
         }
 
         public void Dispose()
         {
-            Service.clientState.TerritoryChanged -= ClientState_TerritoryChanged;
-            Service.clientState.Login -= ClientState_Logout;
-            Service.clientState.Logout -= ClientState_Logout;
         }
 
-        private void ClientState_Login(object sender, EventArgs e)
+        public void OnLogin()
         {
             UpdateOwner();
         }
 
-        private void ClientState_Logout(object sender, EventArgs e)
+        public void OnLogout()
         {
             ownerName = string.Empty;
             ownerCID = 0;
 
             OnOwnerChanged();
-        }
-
-        private void ClientState_TerritoryChanged(object sender, ushort e)
-        {
-            Service.emoteCounters.ForEach(counter => counter.OnTerritoryChanged());
         }
 
         public void OnEmote(PlayerCharacter instigator, ushort emoteId)
