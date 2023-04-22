@@ -8,6 +8,7 @@ using Dalamud.Game.Gui.Toast;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Ipc;
+using System.Collections.Generic;
 
 namespace PatMe
 {
@@ -17,8 +18,7 @@ namespace PatMe
 
         public static Configuration pluginConfig;
 
-        public static EmoteCounter patCounter;
-        public static EmoteCounter doteCounter;
+        public static List<EmoteCounter> emoteCounters;
         public static ICallGateProvider<string, ushort, string, uint, object> counterBroadcast;
 
         [PluginService]

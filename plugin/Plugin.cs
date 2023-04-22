@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Gui.Toast;
 using Dalamud.Interface.Windowing;
@@ -6,7 +7,6 @@ using Dalamud.Logging;
 using Dalamud.Plugin;
 using ImGuiScene;
 using System;
-using System.Collections.Generic;
 
 namespace PatMe
 {
@@ -17,12 +17,11 @@ namespace PatMe
         private readonly WindowSystem windowSystem = new("PatMe");
         private PluginUI pluginUI;
         private EmoteReaderHooks emoteReader;
+        private EmoteDataManager emoteDataManager;
         private UIReaderVoteMvp uiReaderVoteMvp;
         private UIReaderBannerMIP uiReaderBannerMIP;
         private PluginWindowConfig windowConfig;
         private PatCountUI patCountUI;
-
-        public readonly List<EmoteCounter> emoteCounters = new();
 
         public Plugin(DalamudPluginInterface pluginInterface)
         {
@@ -33,28 +32,10 @@ namespace PatMe
             Service.pluginConfig = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Service.pluginConfig.Initialize(pluginInterface);
 
-            Service.patCounter = new EmoteCounter()
-            {
-                counterEmoteId = EmoteReaderHooks.petEmoteId,
-                counterDesc = "pat",
-                counterDescPlural = "pats",
-                uiDesc = "Head pats",
-            };
-            Service.patCounter.OnChanged += (num) => OnEmoteReward(Service.patCounter, num);
-            emoteCounters.Add(Service.patCounter);
+            CreateEmoteCounters();
 
-            // two different emote ids?
-            Service.doteCounter = new EmoteCounter()
-            {
-                counterEmoteId = 146,
-                triggerEmoteIds = new int[] { 146, 147 },
-                counterDesc = "dote",
-                counterDescPlural = "dotes",
-                uiDesc = "Ranged pats",
-            };
-            Service.doteCounter.OnChanged += (num) => OnEmoteReward(Service.doteCounter, num);
-            Service.doteCounter.isActive = Service.pluginConfig.canTrackDotes;
-            emoteCounters.Add(Service.doteCounter);
+            emoteDataManager = new EmoteDataManager();
+            emoteDataManager.Initialize(); // config and counters must be ready
 
             pluginUI = new PluginUI();
             pluginUI.overlayImage = LoadEmbeddedImage("fan-kit-lala.png");
@@ -74,11 +55,7 @@ namespace PatMe
             pluginInterface.UiBuilder.OpenConfigUi += OnOpenConfig;
 
             emoteReader = new EmoteReaderHooks();
-            emoteReader.OnEmote += (instigator, emoteId) => emoteCounters.ForEach(x => x.OnEmote(instigator, emoteId));
-
-            Service.framework.Update += Framework_Update;
-            Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
-            Service.clientState.Logout += ClientState_Logout;
+            emoteReader.OnEmote += (instigator, emoteId) => emoteDataManager.OnEmote(instigator as PlayerCharacter, emoteId);
 
             if (Service.pluginConfig.showCounterUI)
             {
@@ -86,6 +63,7 @@ namespace PatMe
             }
 
             Service.counterBroadcast = pluginInterface.GetIpcProvider<string, ushort, string, uint, object>("patMeEmoteCounter");
+            Service.framework.Update += Framework_Update;
         }
 
         private void Framework_Update(Framework framework)
@@ -95,38 +73,58 @@ namespace PatMe
             uiReaderBannerMIP.Tick(deltaSeconds);
         }
 
-        private void ClientState_TerritoryChanged(object sender, ushort e)
-        {
-            emoteCounters.ForEach(x => x.OnTerritoryChanged());
-        }
-
-        private void ClientState_Logout(object sender, EventArgs e)
-        {
-            emoteCounters.ForEach(x => x.OnLogout());
-        }
-
         public void Dispose()
         {
             pluginUI.Dispose();
 
             emoteReader.Dispose();
+            emoteDataManager.Dispose();
             windowSystem.RemoveAllWindows();
 
             Service.commandManager.RemoveHandler("/patme");
             Service.commandManager.RemoveHandler("/patcount");
             Service.framework.Update -= Framework_Update;
-            Service.clientState.TerritoryChanged -= ClientState_TerritoryChanged;
-            Service.clientState.Logout -= ClientState_Logout;
+        }
+
+        private void CreateEmoteCounters()
+        {
+            Service.emoteCounters = new();
+
+            var patCounter = new EmoteCounter()
+            {
+                descSingular = "pat",
+                descPlural = "pats",
+                descUI = "Head pats",
+            };
+            patCounter.Initialize(EmoteConstants.PatName, new int[] { EmoteConstants.PatEmoteID });
+            patCounter.OnChanged += (num) => OnEmoteReward(patCounter, num);
+            Service.emoteCounters.Add(patCounter);
+
+            var doteCounter = new EmoteCounter()
+            {
+                descSingular = "dote",
+                descPlural = "dotes",
+                descUI = "Ranged pats",
+            };
+            doteCounter.Initialize(EmoteConstants.DoteName, new int[] { EmoteConstants.DoteEmoteID, EmoteConstants.DoteEmoteID2 });
+            doteCounter.OnChanged += (num) => OnEmoteReward(doteCounter, num);
+            doteCounter.isActive = Service.pluginConfig.canTrackDotes;
+            Service.emoteCounters.Add(doteCounter);
         }
 
         private void OnCommand(string command, string args)
         {
             if (command == "/patme")
             {
-                DescribeCounter(Service.patCounter, false);
-                foreach (var counter in emoteCounters)
+                var patCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.PatName);
+                if (patCounter != null)
                 {
-                    if (counter != Service.patCounter)
+                    DescribeCounter(patCounter, false);
+                }
+
+                foreach (var counter in Service.emoteCounters)
+                {
+                    if (counter != patCounter)
                     {
                         DescribeCounter(counter);
                     }
@@ -140,24 +138,24 @@ namespace PatMe
 
         private void DescribeCounter(EmoteCounter counter, bool hideEmpty = true)
         {
-            if (counter == null || string.IsNullOrEmpty(counter.counterDesc) || !counter.isActive)
+            if (counter == null || string.IsNullOrEmpty(counter.descSingular) || !counter.isActive)
             {
                 return;
             }
 
-            int numEmotes = counter.GetCounter();
+            uint numEmotes = counter.Value;
             if (numEmotes <= 0 && hideEmpty)
             {
                 return;
             }
 
-            var useName = counter.counterDesc[0].ToString().ToUpper() + counter.counterDesc.Substring(1);
+            var useName = counter.descSingular[0].ToString().ToUpper() + counter.descSingular.Substring(1);
             Service.chatGui.Print($"{useName} counter: {numEmotes}");
 
             var (maxPlayerName, maxCount) = counter.GetTopEmotesInZone();
             if (maxCount > 0)
             {
-                string countDesc = (maxCount == 1) ? counter.counterDesc : counter.counterDescPlural;
+                string countDesc = (maxCount == 1) ? counter.descSingular : counter.descPlural;
                 Service.chatGui.Print($"♥ {maxPlayerName}: {maxCount} {countDesc}");
             }
         }
@@ -178,19 +176,19 @@ namespace PatMe
             patCountUI.IsOpen = wantsUI;
         }
 
-        private void OnEmoteReward(EmoteCounter counter, int numEmotes)
+        private void OnEmoteReward(EmoteCounter counter, uint numEmotes)
         {
             // thresholds on: 5, 15, 25, 50, 75, ...
             bool isSpecial = (numEmotes < 25) ? (numEmotes == 5 || numEmotes == 15) : ((numEmotes % 25) == 0);
             if (isSpecial && Service.pluginConfig.showSpecialPats)
             {
                 // pats get special rewards.
-                if (counter == Service.patCounter)
+                if (counter.Name == EmoteConstants.PatName)
                 {
                     pluginUI.Show();
                 }
 
-                var useDesc = counter.counterDescPlural.ToUpper();
+                var useDesc = counter.descPlural.ToUpper();
                 Service.toastGui?.ShowQuest($"{numEmotes} {useDesc}!", new QuestToastOptions
                 {
                     Position = QuestToastPosition.Centre,
@@ -201,7 +199,7 @@ namespace PatMe
             }
             else if (Service.pluginConfig.showFlyText)
             {
-                var useDesc = counter.counterDesc.ToUpper();
+                var useDesc = counter.descSingular.ToUpper();
                 Service.flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, (uint)numEmotes, 0, useDesc, " ", 0xff00ff00, 0, 0);
             }
         }

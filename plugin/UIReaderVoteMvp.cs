@@ -54,7 +54,9 @@ namespace PatMe
 
                         if (!playerName.Contains("pats ]") && !playerName.Contains("pat ]"))
                         {
-                            int numPats = Service.patCounter.GetEmotesInCurrentZone(playerName);
+                            var patCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.PatName);
+                            int numPats = patCounter != null ? patCounter.GetEmotesInCurrentZone(playerName) : 0;
+
                             if (numPats == 1)
                             {
                                 playerName += " [ 1 pat ]";

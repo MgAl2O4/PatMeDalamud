@@ -48,7 +48,11 @@ namespace PatMe
 
                 Service.pluginConfig.Save();
 
-                Service.doteCounter.isActive = canTrackDotes;
+                var doteCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.DoteName);
+                if (doteCounter != null)
+                {
+                    doteCounter.isActive = canTrackDotes;
+                }
             }
         }
     }

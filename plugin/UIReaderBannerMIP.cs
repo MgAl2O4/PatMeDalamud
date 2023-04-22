@@ -63,7 +63,7 @@ namespace PatMe
 
         private unsafe void UpdatePlayerNames(int entryIdx, bool collectsPlayerNames, AtkResNode* nodeLastName, AtkResNode* nodeFirstName, AtkResNode* nodeCombined)
         {
-            if (nodeLastName == null || nodeFirstName == null || nodeCombined == null || 
+            if (nodeLastName == null || nodeFirstName == null || nodeCombined == null ||
                 nodeLastName->Type != NodeType.Text || nodeFirstName->Type != NodeType.Text || nodeCombined->Type != NodeType.Text)
             {
                 return;
@@ -93,7 +93,9 @@ namespace PatMe
                 return;
             }
 
-            int numPats = Service.patCounter.GetEmotesInCurrentZone(playerName);
+            var patCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.PatName);
+            int numPats = patCounter != null ? patCounter.GetEmotesInCurrentZone(playerName) : 0;
+
             if (numPats > 0)
             {
                 ((AtkTextNode*)nodeLastName)->SetText($"pats: {numPats}");
