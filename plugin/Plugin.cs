@@ -110,6 +110,17 @@ namespace PatMe
             doteCounter.OnChanged += (num) => OnEmoteReward(doteCounter, num);
             doteCounter.isActive = Service.pluginConfig.canTrackDotes;
             Service.emoteCounters.Add(doteCounter);
+
+            var hugCounter = new EmoteCounter()
+            {
+                descSingular = "hug",
+                descPlural = "hugs",
+                descUI = "Hugs",
+            };
+            hugCounter.Initialize(EmoteConstants.HugName, new int[] { EmoteConstants.HugEmoteID, EmoteConstants.EmbraceEmoteID });
+            hugCounter.OnChanged += (num) => OnEmoteReward(hugCounter, num);
+            hugCounter.isActive = Service.pluginConfig.canTrackHugs;
+            Service.emoteCounters.Add(hugCounter);
         }
 
         private void OnCommand(string command, string args)

@@ -25,6 +25,7 @@ namespace PatMe
         public bool showFlyText { get; set; } = true;
         public bool showCounterUI { get; set; } = false;
         public bool canTrackDotes { get; set; } = true;
+        public bool canTrackHugs { get; set; } = true;
 
         [NonSerialized]
         private DalamudPluginInterface pluginInterface;

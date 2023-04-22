@@ -25,6 +25,7 @@ namespace PatMe
             bool showFlyText = Service.pluginConfig.showFlyText;
             bool showCounterOnScreen = Service.pluginConfig.showCounterUI;
             bool canTrackDotes = Service.pluginConfig.canTrackDotes;
+            bool canTrackHugs = Service.pluginConfig.canTrackHugs;
             bool hasChanges = false;
 
             hasChanges = ImGui.Checkbox("Show notify on reaching pat goals", ref showSpecialPats) || hasChanges;
@@ -33,6 +34,7 @@ namespace PatMe
 
             ImGui.Separator();
             hasChanges = ImGui.Checkbox("Track emote: dote", ref canTrackDotes) || hasChanges;
+            hasChanges = ImGui.Checkbox("Track emote: hug", ref canTrackHugs) || hasChanges;
 
             if (showCounterOnScreen != Service.pluginConfig.showCounterUI)
             {
@@ -45,6 +47,7 @@ namespace PatMe
                 Service.pluginConfig.showFlyText = showFlyText;
                 Service.pluginConfig.showCounterUI = showCounterOnScreen;
                 Service.pluginConfig.canTrackDotes = canTrackDotes;
+                Service.pluginConfig.canTrackHugs = canTrackHugs;
 
                 Service.pluginConfig.Save();
 
@@ -52,6 +55,12 @@ namespace PatMe
                 if (doteCounter != null)
                 {
                     doteCounter.isActive = canTrackDotes;
+                }
+
+                var hugCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.HugName);
+                if (hugCounter != null)
+                {
+                    hugCounter.isActive = canTrackHugs;
                 }
             }
         }
