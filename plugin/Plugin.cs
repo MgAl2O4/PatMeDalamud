@@ -123,7 +123,7 @@ namespace PatMe
             {
                 descSingular = "dote",
                 descPlural = "dotes",
-                descUI = "Ranged pats",
+                descUI = "Dotes",
             };
             doteCounter.Initialize(EmoteConstants.DoteName, new int[] { EmoteConstants.DoteEmoteID, EmoteConstants.DoteEmoteID2 });
             doteCounter.rewards = rewardsDefault;
