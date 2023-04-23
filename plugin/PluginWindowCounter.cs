@@ -56,14 +56,21 @@ namespace PatMe
                 }
             }
 
-            if (Service.pluginConfig.showCounterUI && Service.clientState.IsLoggedIn)
+            if (Service.pluginConfig.showCounterUI)
             {
-                IsOpen = true;
-
-                if (Service.pluginConfig.collapseCounterUI)
+                if (Service.clientState.IsLoggedIn)
                 {
-                    collapseTimeRemaining = collapseTimeDuration;
+                    IsOpen = true;
+
+                    if (Service.pluginConfig.collapseCounterUI)
+                    {
+                        collapseTimeRemaining = collapseTimeDuration;
+                    }
                 }
+            }
+            else
+            {
+                IsOpen = false;
             }
         }
 
@@ -157,7 +164,8 @@ namespace PatMe
             UpdateCounterData();
             UpdateAnimations();
 
-            if (collapseTimeRemaining > 0.0f)
+            var drawCollapseAnim = Service.pluginConfig.collapseCounterUI && collapseTimeRemaining > 0.0f;
+            if (drawCollapseAnim)
             {
                 var collapseAlpha = Math.Ceiling(collapseTimeRemaining) / collapseTimeDuration;
                 var startPos = ImGui.GetCursorPos() + ImGui.GetWindowPos();
@@ -166,6 +174,7 @@ namespace PatMe
                 ImGui.GetWindowDrawList().AddRectFilled(startPos, endPos, colorCollapseTimer);
             }
 
+            var hideCollapsedTimers = Service.pluginConfig.collapseCounterUI && collapseTimeRemaining < 0.0f;
             if (ImGui.BeginTable("##counters", 2, ImGuiTableFlags.None))
             {
                 for (int idx = 0; idx < counterUI.Count; idx++)
@@ -176,7 +185,7 @@ namespace PatMe
                         continue;
                     }
 
-                    if (uiData.expandWhenUpdated && collapseTimeRemaining < 0.0f)
+                    if (uiData.expandWhenUpdated && hideCollapsedTimers)
                     {
                         continue;
                     }
