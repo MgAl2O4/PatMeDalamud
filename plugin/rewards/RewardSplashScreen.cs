@@ -12,12 +12,9 @@ namespace PatMe
             if (canShow)
             {
                 Service.splashScreen.Show();
-                stopProcessing = true;
             }
-            else
-            {
-                stopProcessing = false;
-            }
+
+            stopProcessing = false;
         }
     }
 }

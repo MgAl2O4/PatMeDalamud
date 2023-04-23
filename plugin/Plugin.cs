@@ -116,7 +116,7 @@ namespace PatMe
                 descUI = "Head pats",
             };
             patCounter.Initialize(EmoteConstants.PatName, new int[] { EmoteConstants.PatEmoteID });
-            patCounter.rewards = new List<IEmoteReward>() { new RewardSplashScreen(), new RewardProgressNotify(), new RewardFlyText() };
+            patCounter.rewards = new List<IEmoteReward>() { new RewardSplashScreen(), new RewardProgressNotify(), new RewardFlyTextPat() };
             Service.emoteCounters.Add(patCounter);
 
             var doteCounter = new EmoteCounter()
