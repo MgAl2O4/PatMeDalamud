@@ -59,6 +59,11 @@ namespace PatMe
             if (Service.pluginConfig.showCounterUI && Service.clientState.IsLoggedIn)
             {
                 IsOpen = true;
+
+                if (Service.pluginConfig.collapseCounterUI)
+                {
+                    collapseTimeRemaining = collapseTimeDuration;
+                }
             }
         }
 
