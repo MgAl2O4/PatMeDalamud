@@ -23,16 +23,19 @@ namespace PatMe
         {
             bool showCounterUI = Service.pluginConfig.showCounterUI;
             bool lockCounterUI = Service.pluginConfig.lockCounterUI;
+            bool collapseCounterUI = Service.pluginConfig.collapseCounterUI;
             bool hasChangesCounterUI = false;
 
-            ImGui.Text("UI:");
+            ImGui.Text("Counter UI:");
             hasChangesCounterUI = ImGui.Checkbox("Show emote counter on screen", ref showCounterUI) || hasChangesCounterUI;
-            hasChangesCounterUI = ImGui.Checkbox("Lock emote counter position", ref lockCounterUI) || hasChangesCounterUI;
+            hasChangesCounterUI = ImGui.Checkbox("Lock counter position", ref lockCounterUI) || hasChangesCounterUI;
+            hasChangesCounterUI = ImGui.Checkbox("Auto collapse counter", ref collapseCounterUI) || hasChangesCounterUI;
 
             if (hasChangesCounterUI)
             {
                 Service.pluginConfig.showCounterUI = showCounterUI;
                 Service.pluginConfig.lockCounterUI = lockCounterUI;
+                Service.pluginConfig.collapseCounterUI = collapseCounterUI;
 
                 Service.plugin.OnCounterWindowConfigChanged();
             }

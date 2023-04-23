@@ -1,4 +1,5 @@
-﻿using Dalamud.Interface.Windowing;
+﻿using Dalamud.Interface;
+using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
@@ -8,13 +9,23 @@ namespace PatMe
 {
     public class PluginWindowCounter : Window, IDisposable
     {
-        private Vector4 colorName = new(0.75f, 0.75f, 0.75f, 1.0f);
-        private Vector4 colorValue = new(1.0f, 1.0f, 1.0f, 1.0f);
-        private uint colorUpdateFlash = 0x008000;
+        class CounterUIData
+        {
+            public uint lastValue;
+            public float flashRemaining;
+            public bool canShow;
+            public bool expandWhenUpdated;
+        }
 
-        private List<float> updateFlashRemaining = new();
-        private List<uint> updateFlashLastValue = new();
-        private float updateFlashDuration = 1.0f;
+        private readonly Vector4 colorName = new(0.75f, 0.75f, 0.75f, 1.0f);
+        private readonly Vector4 colorValue = new(1.0f, 1.0f, 1.0f, 1.0f);
+        private const uint colorUpdateFlash = 0x008000;
+        private const uint colorCollapseTimer = 0xff808000;
+
+        private List<CounterUIData> counterUI = new();
+        private const float updateFlashDuration = 1.0f;
+        private const float collapseTimeDuration = 15.0f;
+        private float collapseTimeRemaining = -1.0f;
 
         public PluginWindowCounter() : base("Pat Count")
         {
@@ -37,9 +48,12 @@ namespace PatMe
 
             if (Service.pluginConfig.lockCounterUI)
             {
-                Flags |= ImGuiWindowFlags.NoMove |
-                    ImGuiWindowFlags.NoDocking |
-                    ImGuiWindowFlags.NoMouseInputs;
+                Flags |= ImGuiWindowFlags.NoMove;
+
+                if (!Service.pluginConfig.collapseCounterUI)
+                {
+                    Flags |= ImGuiWindowFlags.NoMouseInputs;
+                }
             }
 
             if (Service.pluginConfig.showCounterUI && Service.clientState.IsLoggedIn)
@@ -48,60 +62,122 @@ namespace PatMe
             }
         }
 
-        private void UpdateAnimations()
+        private void UpdateCounterData()
         {
-            if (updateFlashRemaining.Count != Service.emoteCounters.Count || updateFlashLastValue.Count != Service.emoteCounters.Count)
+            if (counterUI.Count != Service.emoteCounters.Count)
             {
-                updateFlashRemaining.Clear();
-                updateFlashLastValue.Clear();
+                counterUI.Clear();
 
                 for (int idx = 0; idx < Service.emoteCounters.Count; idx++)
                 {
-                    updateFlashRemaining.Add(-1.0f);
-                    updateFlashLastValue.Add(Service.emoteCounters[idx].Value);
+                    counterUI.Add(new CounterUIData()
+                    {
+                        lastValue = Service.emoteCounters[idx].Value,
+                        flashRemaining = -1.0f,
+                    });
                 }
             }
 
             for (int idx = 0; idx < Service.emoteCounters.Count; idx++)
             {
-                if (updateFlashLastValue[idx] != Service.emoteCounters[idx].Value)
+                var counter = Service.emoteCounters[idx];
+                var uiData = counterUI[idx];
+
+                if (counter == null || !counter.isActive || string.IsNullOrEmpty(counter.descUI))
                 {
-                    updateFlashLastValue[idx] = Service.emoteCounters[idx].Value;
-                    updateFlashRemaining[idx] = updateFlashDuration;
+                    uiData.canShow = false;
+                    continue;
                 }
+
+                var isPatCounter = counter.Name == EmoteConstants.PatName;
+                if (!isPatCounter)
+                {
+                    if (counter.Value == 0)
+                    {
+                        uiData.canShow = false;
+                        continue;
+                    }
+
+                    uiData.expandWhenUpdated = true;
+                }
+
+                if (uiData.lastValue != counter.Value)
+                {
+                    uiData.lastValue = counter.Value;
+                    uiData.flashRemaining = updateFlashDuration;
+                }
+
+                uiData.canShow = true;
+            }
+        }
+
+        private void UpdateAnimations()
+        {
+            var deltaTime = ImGui.GetIO().DeltaTime;
+            var showExpanded = ImGui.IsWindowHovered();
+            int numCountersToShow = 0;
+
+            foreach (var uiData in counterUI)
+            {
+                if (uiData.flashRemaining > 0.0f)
+                {
+                    uiData.flashRemaining -= deltaTime;
+
+                    showExpanded = showExpanded || uiData.expandWhenUpdated;
+                }
+
+                numCountersToShow += uiData.canShow ? 1 : 0;
             }
 
-            var deltaTime = ImGui.GetIO().DeltaTime;
-            for (int idx = 0; idx < updateFlashRemaining.Count; idx++)
+            if (numCountersToShow >= 2)
             {
-                if (updateFlashRemaining[idx] >= 0.0f)
+                if (showExpanded)
                 {
-                    updateFlashRemaining[idx] -= deltaTime;
+                    collapseTimeRemaining = collapseTimeDuration;
                 }
+
+                if (collapseTimeRemaining >= 0.0f)
+                {
+                    collapseTimeRemaining -= deltaTime;
+                }
+            }
+            else
+            {
+                collapseTimeRemaining = -1.0f;
             }
         }
 
         public override void Draw()
         {
+            UpdateCounterData();
             UpdateAnimations();
+
+            if (collapseTimeRemaining > 0.0f)
+            {
+                var collapseAlpha = Math.Ceiling(collapseTimeRemaining) / collapseTimeDuration;
+                var startPos = ImGui.GetCursorPos() + ImGui.GetWindowPos();
+                var endPos = startPos + new Vector2(ImGui.GetContentRegionAvail().X * (float)collapseAlpha, 2.0f * ImGuiHelpers.GlobalScale);
+
+                ImGui.GetWindowDrawList().AddRectFilled(startPos, endPos, colorCollapseTimer);
+            }
 
             if (ImGui.BeginTable("##counters", 2, ImGuiTableFlags.None))
             {
-                for (int idx = 0; idx < Service.emoteCounters.Count; idx++)
+                for (int idx = 0; idx < counterUI.Count; idx++)
                 {
+                    var uiData = counterUI[idx];
+                    if (!uiData.canShow)
+                    {
+                        continue;
+                    }
+
+                    if (uiData.expandWhenUpdated && collapseTimeRemaining < 0.0f)
+                    {
+                        continue;
+                    }
+
                     var counter = Service.emoteCounters[idx];
-                    if (counter == null || !counter.isActive || string.IsNullOrEmpty(counter.descUI))
-                    {
-                        continue;
-                    }
-
-                    if (counter.Value == 0 && counter.Name != EmoteConstants.PatName)
-                    {
-                        // only pats can stay with 0
-                        continue;
-                    }
-
-                    float updateFlashAlpha = (updateFlashRemaining[idx] > 0.0f) ? (updateFlashRemaining[idx] / updateFlashDuration) : 0.0f;
+                    float updateFlashAlpha = (uiData.flashRemaining > 0.0f) ? (uiData.flashRemaining / updateFlashDuration) : 0.0f;
                     uint cellBgColor = colorUpdateFlash | (uint)(updateFlashAlpha * 255) << 24;
 
                     ImGui.TableNextRow();
