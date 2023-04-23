@@ -68,7 +68,7 @@ namespace PatMe
             ImGui.Separator();
             ImGui.Text("Emotes:");
             bHasChangesEmotes = ImGui.Checkbox("Track: dote", ref canTrackDotes) || bHasChangesEmotes;
-            bHasChangesEmotes = ImGui.Checkbox("Track: hug", ref canTrackHugs) || bHasChangesEmotes;
+            bHasChangesEmotes = ImGui.Checkbox("Track: hug & embrace", ref canTrackHugs) || bHasChangesEmotes;
 
             if (bHasChangesEmotes)
             {
