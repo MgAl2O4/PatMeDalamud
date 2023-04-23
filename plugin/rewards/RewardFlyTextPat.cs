@@ -1,7 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Gui.FlyText;
-using Dalamud.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -40,7 +39,7 @@ namespace PatMe
                 else if (numPatsInLast3s >= 3)
                 {
                     useDesc = "Quick " + useDesc;
-                    
+
                     if (numPatsInLast3s >= 6)
                     {
                         useSubDesc = "HEAD TRAUMA WARNING !!";

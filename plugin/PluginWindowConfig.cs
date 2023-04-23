@@ -50,7 +50,7 @@ namespace PatMe
             ImGui.Text("Rewards:");
             bHasChangesRewards = ImGui.Checkbox("Use splash screen", ref showSpecialPats) || bHasChangesRewards;
             bHasChangesRewards = ImGui.Checkbox("Use progress notify", ref showProgressNotify) || bHasChangesRewards;
-            bHasChangesRewards = ImGui.Checkbox("Use fly text counters", ref showFlyText) || bHasChangesRewards;
+            bHasChangesRewards = ImGui.Checkbox("Use fly text", ref showFlyText) || bHasChangesRewards;
             bHasChangesRewards = ImGui.Checkbox("Include names in fly text", ref showFlyTextNames) || bHasChangesRewards;
 
             if (bHasChangesRewards)
