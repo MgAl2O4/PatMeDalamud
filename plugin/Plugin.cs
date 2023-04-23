@@ -160,11 +160,19 @@ namespace PatMe
                 var useName = counter.descSingular[0].ToString().ToUpper() + counter.descSingular.Substring(1);
                 Service.chatGui.Print($"{useName} counter: {numEmotes}");
 
-                var (maxPlayerName, maxCount) = counter.GetTopEmotesInZone();
-                if (maxCount > 0)
+                if (counter.GetTopEmotes(out string playerName, out uint score))
                 {
-                    string countDesc = (maxCount == 1) ? counter.descSingular : counter.descPlural;
-                    Service.chatGui.Print($"♥ {maxPlayerName}: {maxCount} {countDesc}");
+                    string countDesc = (score == 1) ? counter.descSingular : counter.descPlural;
+                    Service.chatGui.Print($"♥ {playerName}: {score} {countDesc}");
+                }
+
+                if (counter.GetTopEmotesInCurrentZone(out string playerNameZone, out uint scoreZone))
+                {
+                    if (playerNameZone != playerName || score != scoreZone)
+                    {
+                        string countDesc = (scoreZone == 1) ? counter.descSingular : counter.descPlural;
+                        Service.chatGui.Print($"\uE0BB {playerNameZone}: {scoreZone} {countDesc}");
+                    }
                 }
             }
         }

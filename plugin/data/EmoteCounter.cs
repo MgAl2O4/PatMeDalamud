@@ -6,7 +6,8 @@ namespace PatMe
 {
     public class EmoteCounter
     {
-        private Dictionary<string, int> mapEmotesInZone = new();
+        private EmoteInstigatorCounter instigatorsCurrentZone = new();
+        private EmoteInstigatorCounter instigators = new();
         private int[] emoteIds;
         private string emoteName;
 
@@ -42,15 +43,9 @@ namespace PatMe
 
             dataLink.Value++;
 
-            var instigatorName = instigator.Name.ToString();
-            if (mapEmotesInZone.TryGetValue(instigatorName, out int counter))
-            {
-                mapEmotesInZone[instigatorName] = counter + 1;
-            }
-            else
-            {
-                mapEmotesInZone.Add(instigatorName, 1);
-            }
+            var instigatorKey = EmoteInstigatorCounter.InstigatorData.Create(instigator);
+            instigators.Increment(instigatorKey);
+            instigatorsCurrentZone.Increment(instigatorKey);
 
             foreach (var rewardOb in rewards)
             {
@@ -69,34 +64,15 @@ namespace PatMe
 
         public void OnTerritoryChanged()
         {
-            mapEmotesInZone.Clear();
+            instigatorsCurrentZone.Clear();
         }
 
-        public (string, int) GetTopEmotesInZone()
-        {
-            string maxEmotesPlayer = null;
-            int maxEmotes = 0;
+        public bool GetTopEmotes(out string instigatorName, out uint score) => instigators.GetHighestScore(out instigatorName, out score);
 
-            foreach (var kvp in mapEmotesInZone)
-            {
-                if (kvp.Value > maxEmotes)
-                {
-                    maxEmotes = kvp.Value;
-                    maxEmotesPlayer = kvp.Key;
-                }
-            }
+        public bool GetTopEmotesInCurrentZone(out string instigatorName, out uint score) => instigatorsCurrentZone.GetHighestScore(out instigatorName, out score);
 
-            return (maxEmotesPlayer, maxEmotes);
-        }
+        public uint GetEmoteCounter(string instigatorName) => instigators.GetCounter(instigatorName);
 
-        public int GetEmotesInCurrentZone(string instigatorName)
-        {
-            if (mapEmotesInZone.TryGetValue(instigatorName, out int numEmotes))
-            {
-                return numEmotes;
-            }
-
-            return 0;
-        }
+        public uint GetEmoteCounterInCurrentZone(string instigatorName) => instigatorsCurrentZone.GetCounter(instigatorName);
     }
 }
