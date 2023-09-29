@@ -52,7 +52,7 @@ namespace PatMe
                     useColor = 0xff00d7ff;
                 }
 
-                Service.flyTextGui?.AddFlyText(FlyTextKind.NamedCriticalDirectHit, 0, counterOb.Value, 0, useDesc, useSubDesc, useColor, 0, 0);
+                Service.flyTextGui?.AddFlyText(FlyTextKind.DamageCritDh, 0, counterOb.Value, 0, useDesc, useSubDesc, useColor, 0, 0);
             }
 
             stopProcessing = false;

@@ -1,5 +1,5 @@
-﻿using ImGuiNET;
-using ImGuiScene;
+﻿using Dalamud.Interface.Internal;
+using ImGuiNET;
 using System;
 using System.Numerics;
 
@@ -15,7 +15,7 @@ namespace PatMe
             Disappear,
         }
 
-        public TextureWrap overlayImage;
+        public IDalamudTextureWrap overlayImage;
 
         private AnimPhase anim = AnimPhase.None;
         private static readonly float[] animDuration = new float[] { 0.0f, 1.0f, 1.0f, 1.0f };

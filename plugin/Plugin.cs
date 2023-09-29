@@ -1,9 +1,7 @@
-﻿using Dalamud.Game;
-using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
 using Dalamud.Plugin;
-using ImGuiScene;
 using System;
 using System.Collections.Generic;
 
@@ -56,7 +54,7 @@ namespace PatMe
             emoteReader.OnEmote += (instigator, emoteId) => emoteDataManager.OnEmote(instigator as PlayerCharacter, emoteId);
 
             Service.counterBroadcast = pluginInterface.GetIpcProvider<string, ushort, string, uint, object>("patMeEmoteCounter");
-            Service.framework.Update += Framework_Update;
+            Service.framework.RunOnTick(Framework_Update);
             Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
             Service.clientState.Login += ClientState_Login;
             Service.clientState.Logout += ClientState_Logout;
@@ -64,26 +62,26 @@ namespace PatMe
             OnCounterWindowConfigChanged();
         }
 
-        private void Framework_Update(Framework framework)
+        private void Framework_Update()
         {
-            float deltaSeconds = (float)framework.UpdateDelta.TotalSeconds;
+            float deltaSeconds = (float)Service.framework.UpdateDelta.TotalSeconds;
             uiReaderVoteMvp.Tick(deltaSeconds);
             uiReaderBannerMIP.Tick(deltaSeconds);
         }
 
-        private void ClientState_Login(object sender, EventArgs e)
+        private void ClientState_Login()
         {
             emoteDataManager.OnLogin();
             OnCounterWindowConfigChanged();
         }
 
-        private void ClientState_Logout(object sender, EventArgs e)
+        private void ClientState_Logout()
         {
             emoteDataManager.OnLogout();
             windowCounters.IsOpen = false;
         }
 
-        private void ClientState_TerritoryChanged(object sender, ushort e)
+        private void ClientState_TerritoryChanged(ushort e)
         {
             Service.emoteCounters.ForEach(counter => counter.OnTerritoryChanged());
         }
@@ -98,7 +96,7 @@ namespace PatMe
 
             Service.commandManager.RemoveHandler("/patme");
             Service.commandManager.RemoveHandler("/patcount");
-            Service.framework.Update -= Framework_Update;
+            // TODO: is Service.framework.RunOnTick cleanup required?
             Service.clientState.TerritoryChanged -= ClientState_TerritoryChanged;
             Service.clientState.Login -= ClientState_Login;
             Service.clientState.Logout -= ClientState_Logout;
@@ -198,9 +196,9 @@ namespace PatMe
             windowCounters.UpdateConfig();
         }
 
-        private TextureWrap LoadEmbeddedImage(string name)
+        private IDalamudTextureWrap LoadEmbeddedImage(string name)
         {
-            TextureWrap resultImage = null;
+            IDalamudTextureWrap resultImage = null;
             try
             {
                 var myAssembly = GetType().Assembly;
@@ -219,7 +217,7 @@ namespace PatMe
             }
             catch (Exception ex)
             {
-                PluginLog.Error(ex, "failed to load overlay image");
+                Service.logger.Error(ex, "failed to load overlay image");
             }
 
             return resultImage;
