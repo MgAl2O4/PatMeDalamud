@@ -167,8 +167,9 @@ namespace PatMe
             if (drawCollapseAnim)
             {
                 var collapseAlpha = Math.Ceiling(collapseTimeRemaining) / collapseTimeDuration;
+                var globalScale = Dalamud.Interface.Utility.ImGuiHelpers.GlobalScale;
                 var startPos = ImGui.GetCursorPos() + ImGui.GetWindowPos();
-                var endPos = startPos + new Vector2(ImGui.GetContentRegionAvail().X * (float)collapseAlpha, 2.0f * 1.0f); // GlobalScale?
+                var endPos = startPos + new Vector2(ImGui.GetContentRegionAvail().X * (float)collapseAlpha, 2.0f * globalScale);
 
                 ImGui.GetWindowDrawList().AddRectFilled(startPos, endPos, colorCollapseTimer);
             }
