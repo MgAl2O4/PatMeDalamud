@@ -2,6 +2,7 @@
 using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 using System;
 using System.Collections.Generic;
 
@@ -54,7 +55,7 @@ namespace PatMe
             emoteReader.OnEmote += (instigator, emoteId) => emoteDataManager.OnEmote(instigator as PlayerCharacter, emoteId);
 
             Service.counterBroadcast = pluginInterface.GetIpcProvider<string, ushort, string, uint, object>("patMeEmoteCounter");
-            Service.framework.RunOnTick(Framework_Update);
+            Service.framework.Update += Framework_Update;
             Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
             Service.clientState.Login += ClientState_Login;
             Service.clientState.Logout += ClientState_Logout;
@@ -62,9 +63,9 @@ namespace PatMe
             OnCounterWindowConfigChanged();
         }
 
-        private void Framework_Update()
+        private void Framework_Update(IFramework framework)
         {
-            float deltaSeconds = (float)Service.framework.UpdateDelta.TotalSeconds;
+            float deltaSeconds = (float)framework.UpdateDelta.TotalSeconds;
             uiReaderVoteMvp.Tick(deltaSeconds);
             uiReaderBannerMIP.Tick(deltaSeconds);
         }
@@ -96,7 +97,7 @@ namespace PatMe
 
             Service.commandManager.RemoveHandler("/patme");
             Service.commandManager.RemoveHandler("/patcount");
-            // TODO: is Service.framework.RunOnTick cleanup required?
+            Service.framework.Update -= Framework_Update;
             Service.clientState.TerritoryChanged -= ClientState_TerritoryChanged;
             Service.clientState.Login -= ClientState_Login;
             Service.clientState.Logout -= ClientState_Logout;
