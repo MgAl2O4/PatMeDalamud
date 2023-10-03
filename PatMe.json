@@ -6,6 +6,5 @@
   "InternalName": "PatMe",
   "ApplicableVersion": "any",
   "Tags": [ "pat", "lala" ],
-  "CategoryTags": [ "social" ],
-  "DalamudApiLevel": 9
+  "CategoryTags": [ "social" ]
 }
