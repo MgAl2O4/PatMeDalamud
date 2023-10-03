@@ -1,13 +1,7 @@
-﻿using Dalamud.Game;
-using Dalamud.Game.ClientState;
-using Dalamud.Game.ClientState.Objects;
-using Dalamud.Game.Command;
-using Dalamud.Game.Gui;
-using Dalamud.Game.Gui.FlyText;
-using Dalamud.Game.Gui.Toast;
-using Dalamud.IoC;
+﻿using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Ipc;
+using Dalamud.Plugin.Services;
 using System.Collections.Generic;
 
 namespace PatMe
@@ -25,30 +19,33 @@ namespace PatMe
         public static DalamudPluginInterface pluginInterface { get; private set; } = null!;
 
         [PluginService]
-        public static CommandManager commandManager { get; private set; } = null!;
+        public static ICommandManager commandManager { get; private set; } = null!;
 
         [PluginService]
-        public static FlyTextGui flyTextGui { get; private set; } = null!;
+        public static IFlyTextGui flyTextGui { get; private set; } = null!;
 
         [PluginService]
-        public static ToastGui toastGui { get; private set; } = null!;
+        public static IToastGui toastGui { get; private set; } = null!;
 
         [PluginService]
-        public static ClientState clientState { get; private set; } = null!;
+        public static IClientState clientState { get; private set; } = null!;
 
         [PluginService]
-        public static ChatGui chatGui { get; private set; } = null!;
+        public static IChatGui chatGui { get; private set; } = null!;
 
         [PluginService]
-        public static SigScanner sigScanner { get; private set; } = null!;
+        public static IGameInteropProvider sigScanner { get; private set; } = null!;
 
         [PluginService]
-        public static ObjectTable objectTable { get; private set; } = null!;
+        public static IObjectTable objectTable { get; private set; } = null!;
 
         [PluginService]
-        public static Framework framework { get; private set; } = null!;
+        public static IFramework framework { get; private set; } = null!;
 
         [PluginService]
-        public static GameGui gameGui { get; private set; } = null!;
+        public static IGameGui gameGui { get; private set; } = null!;
+
+        [PluginService]
+        public static IPluginLog logger { get; private set; } = null!;
     }
 }

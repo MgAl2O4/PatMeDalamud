@@ -1,5 +1,5 @@
-﻿using Dalamud.Logging;
-using FFXIVClientStructs.FFXIV.Component.GUI;
+﻿using FFXIVClientStructs.FFXIV.Component.GUI;
+using PatMe;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -272,7 +272,7 @@ namespace MgAl2O4.Utils
             foreach (var entry in list)
             {
                 var prefix = entry.depth > 0 ? new string(' ', entry.depth * 2) : "";
-                PluginLog.Log($"{prefix}> '{entry.content}' idx:{entry.childIdx}, children:{entry.numChildren}, type:{entry.type}, addr:{entry.nodeAddr:X}, path:{entry.debugPath}");
+                Service.logger.Info($"{prefix}> '{entry.content}' idx:{entry.childIdx}, children:{entry.numChildren}, type:{entry.type}, addr:{entry.nodeAddr:X}, path:{entry.debugPath}");
             }
         }
 #endif // DEBUG

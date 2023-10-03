@@ -1,6 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Hooking;
-using Dalamud.Logging;
 using System;
 using System.Linq;
 
@@ -19,15 +18,14 @@ namespace PatMe
         {
             try
             {
-                var emoteFuncPtr = Service.sigScanner.ScanText("48 89 5c 24 08 48 89 6c 24 10 48 89 74 24 18 48 89 7c 24 20 41 56 48 83 ec 30 4c 8b 74 24 60 48 8b d9 48 81 c1 60 2f 00 00");
-                hookEmote = Hook<OnEmoteFuncDelegate>.FromAddress(emoteFuncPtr, OnEmoteDetour);
+                hookEmote = Service.sigScanner.HookFromSignature<OnEmoteFuncDelegate>("48 89 5c 24 08 48 89 6c 24 10 48 89 74 24 18 48 89 7c 24 20 41 56 48 83 ec 30 4c 8b 74 24 60 48 8b d9 48 81 c1 60 2f 00 00", OnEmoteDetour);
                 hookEmote.Enable();
 
                 IsValid = true;
             }
             catch (Exception ex)
             {
-                PluginLog.Error(ex, "oh noes!");
+                Service.logger.Error(ex, "oh noes!");
             }
         }
 
@@ -40,7 +38,7 @@ namespace PatMe
         void OnEmoteDetour(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId, ulong unk2)
         {
             // unk - some field of event framework singleton? doesn't matter here anyway
-            // PluginLog.Log($"Emote >> unk:{unk:X}, instigatorAddr:{instigatorAddr:X}, emoteId:{emoteId}, targetId:{targetId:X}, unk2:{unk2:X}");
+            // Service.logger.Info($"Emote >> unk:{unk:X}, instigatorAddr:{instigatorAddr:X}, emoteId:{emoteId}, targetId:{targetId:X}, unk2:{unk2:X}");
 
             if (Service.clientState.LocalPlayer != null)
             {

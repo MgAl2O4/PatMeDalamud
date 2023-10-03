@@ -1,9 +1,8 @@
-﻿using Dalamud.Game;
-using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
 using Dalamud.Plugin;
-using ImGuiScene;
+using Dalamud.Plugin.Services;
 using System;
 using System.Collections.Generic;
 
@@ -64,26 +63,26 @@ namespace PatMe
             OnCounterWindowConfigChanged();
         }
 
-        private void Framework_Update(Framework framework)
+        private void Framework_Update(IFramework framework)
         {
             float deltaSeconds = (float)framework.UpdateDelta.TotalSeconds;
             uiReaderVoteMvp.Tick(deltaSeconds);
             uiReaderBannerMIP.Tick(deltaSeconds);
         }
 
-        private void ClientState_Login(object sender, EventArgs e)
+        private void ClientState_Login()
         {
             emoteDataManager.OnLogin();
             OnCounterWindowConfigChanged();
         }
 
-        private void ClientState_Logout(object sender, EventArgs e)
+        private void ClientState_Logout()
         {
             emoteDataManager.OnLogout();
             windowCounters.IsOpen = false;
         }
 
-        private void ClientState_TerritoryChanged(object sender, ushort e)
+        private void ClientState_TerritoryChanged(ushort e)
         {
             Service.emoteCounters.ForEach(counter => counter.OnTerritoryChanged());
         }
@@ -198,9 +197,9 @@ namespace PatMe
             windowCounters.UpdateConfig();
         }
 
-        private TextureWrap LoadEmbeddedImage(string name)
+        private IDalamudTextureWrap LoadEmbeddedImage(string name)
         {
-            TextureWrap resultImage = null;
+            IDalamudTextureWrap resultImage = null;
             try
             {
                 var myAssembly = GetType().Assembly;
@@ -219,7 +218,7 @@ namespace PatMe
             }
             catch (Exception ex)
             {
-                PluginLog.Error(ex, "failed to load overlay image");
+                Service.logger.Error(ex, "failed to load overlay image");
             }
 
             return resultImage;

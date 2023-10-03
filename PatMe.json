@@ -7,5 +7,5 @@
   "ApplicableVersion": "any",
   "Tags": [ "pat", "lala" ],
   "CategoryTags": [ "social" ],
-  "DalamudApiLevel": 8
+  "DalamudApiLevel": 9
 }

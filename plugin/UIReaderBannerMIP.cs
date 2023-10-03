@@ -100,9 +100,9 @@ namespace PatMe
             {
                 ((AtkTextNode*)nodeLastName)->SetText($"pats: {numPats}");
 
-                nodeCombined->Flags &= ~0x10; // hide
-                nodeLastName->Flags |= 0x10; // show
-                nodeFirstName->Flags |= 0x10; // show
+                nodeCombined->NodeFlags &= ~NodeFlags.Visible; // hide
+                nodeLastName->NodeFlags |= NodeFlags.Visible; // show
+                nodeFirstName->NodeFlags |= NodeFlags.Visible; // show
             }
         }
     }
