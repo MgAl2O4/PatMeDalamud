@@ -11,6 +11,7 @@ namespace PatMe
         public List<DateTime> recentPatTimes = new();
         private Random rand = new Random();
 
+        public uint OnlineStatus => (uint)this.OnlineStatus;
         public void OnCounterChanged(EmoteCounter counterOb, PlayerCharacter instigator, out bool stopProcessing)
         {
             if (Service.pluginConfig.showFlyText)
@@ -20,7 +21,7 @@ namespace PatMe
                 var useColor = 0xff00ff00;
 
                 bool isLongRange = instigator.YalmDistanceX > 7 || instigator.YalmDistanceZ > 7;
-                bool isOwnerAFK = (Service.clientState.LocalPlayer.StatusFlags & StatusFlags.OffhandOut) != 0;
+                bool isOwnerAFK = (Service.clientState.LocalPlayer.OnlineStatus.Id) == 17;
                 bool isOwnerInCombat = (Service.clientState.LocalPlayer.StatusFlags & StatusFlags.InCombat) != 0;
                 UpdateTimestamps(out int numPatsInLast3s);
 
