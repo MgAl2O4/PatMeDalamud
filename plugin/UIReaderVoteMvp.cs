@@ -26,7 +26,7 @@ namespace PatMe
             var addonPtr = Service.gameGui.GetAddonByName("VoteMvp", 1);
             var addonBaseNode = (AtkUnitBase*)addonPtr;
 
-            if (addonBaseNode == null || addonBaseNode->RootNode == null || !addonBaseNode->RootNode->IsVisible)
+            if (addonBaseNode == null || addonBaseNode->RootNode == null || !addonBaseNode->RootNode->IsVisible())
             {
                 // reset when closed
                 cachedAddonPtr = IntPtr.Zero;

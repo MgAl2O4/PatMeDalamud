@@ -11,17 +11,22 @@ namespace PatMe
         public List<DateTime> recentPatTimes = new();
         private Random rand = new Random();
 
-        public uint OnlineStatus => (uint)this.OnlineStatus;
-        public void OnCounterChanged(EmoteCounter counterOb, PlayerCharacter instigator, out bool stopProcessing)
+        public void OnCounterChanged(EmoteCounter counterOb, IPlayerCharacter instigator, out bool stopProcessing)
         {
+            if (Service.clientState == null || Service.clientState.LocalPlayer == null)
+            {
+                stopProcessing = false;
+                return;
+            }
+
             if (Service.pluginConfig.showFlyText)
             {
                 var useDesc = counterOb.descSingular.ToUpper();
                 var useSubDesc = Service.pluginConfig.showFlyTextNames && instigator != null ? instigator.Name : " ";
                 var useColor = 0xff00ff00;
 
-                bool isLongRange = instigator.YalmDistanceX > 7 || instigator.YalmDistanceZ > 7;
-                bool isOwnerAFK = (Service.clientState.LocalPlayer.OnlineStatus.Id) == 17;
+                bool isLongRange = (instigator != null) && (instigator.YalmDistanceX > 7 || instigator.YalmDistanceZ > 7);
+                bool isOwnerAFK = Service.clientState.LocalPlayer.OnlineStatus.Id == 17;
                 bool isOwnerInCombat = (Service.clientState.LocalPlayer.StatusFlags & StatusFlags.InCombat) != 0;
                 UpdateTimestamps(out int numPatsInLast3s);
 

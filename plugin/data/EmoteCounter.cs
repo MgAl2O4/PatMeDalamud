@@ -8,16 +8,16 @@ namespace PatMe
     {
         private EmoteInstigatorCounter instigatorsCurrentZone = new();
         private EmoteInstigatorCounter instigators = new();
-        private int[] emoteIds;
-        private string emoteName;
+        private int[]? emoteIds;
+        private string emoteName = string.Empty;
 
-        public EmoteCounterDB dataLink;
+        public EmoteCounterDB? dataLink;
         public bool isActive = true;
-        public List<IEmoteReward> rewards;
+        public List<IEmoteReward> rewards = [];
 
-        public string descSingular;
-        public string descPlural;
-        public string descUI;
+        public string descSingular = string.Empty;
+        public string descPlural = string.Empty;
+        public string descUI = string.Empty;
 
         public string Name => emoteName;
         public uint Value => dataLink?.Value ?? 0;
@@ -28,7 +28,7 @@ namespace PatMe
             this.emoteIds = emoteIds;
         }
 
-        public bool OnEmote(PlayerCharacter instigator, ushort emoteId)
+        public bool OnEmote(IPlayerCharacter instigator, ushort emoteId)
         {
             if (!isActive || emoteIds == null || instigator == null || dataLink == null)
             {

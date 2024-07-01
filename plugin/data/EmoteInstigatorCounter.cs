@@ -8,15 +8,15 @@ namespace PatMe
     {
         public class InstigatorData : IEquatable<InstigatorData>
         {
-            public string Name;
+            public string Name = string.Empty;
             public uint HomeWorld;
 
-            public bool Equals(InstigatorData other)
+            public bool Equals(InstigatorData? other)
             {
-                return HomeWorld == other.HomeWorld && Name == other.Name;
+                return (other != null) && (HomeWorld == other.HomeWorld) && (Name == other.Name);
             }
 
-            public static InstigatorData Create(PlayerCharacter instigator)
+            public static InstigatorData Create(IPlayerCharacter instigator)
             {
                 return new InstigatorData() { Name = instigator.Name.ToString(), HomeWorld = instigator.HomeWorld.Id };
             }
@@ -29,7 +29,7 @@ namespace PatMe
             mapPlayerCounter.Clear();
         }
 
-        public void Increment(PlayerCharacter instigator) => Increment(InstigatorData.Create(instigator));
+        public void Increment(IPlayerCharacter instigator) => Increment(InstigatorData.Create(instigator));
 
         public void Increment(InstigatorData key)
         {
@@ -43,7 +43,7 @@ namespace PatMe
             }
         }
 
-        public uint GetCounter(PlayerCharacter instigator)
+        public uint GetCounter(IPlayerCharacter instigator)
         {
             var key = InstigatorData.Create(instigator);
             if (mapPlayerCounter.TryGetValue(key, out var counter))

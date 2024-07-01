@@ -1,5 +1,4 @@
 ﻿using Dalamud.Configuration;
-using Dalamud.Plugin;
 using System;
 using System.Collections.Generic;
 
@@ -31,13 +30,8 @@ namespace PatMe
         public bool canTrackDotes { get; set; } = true;
         public bool canTrackHugs { get; set; } = true;
 
-        [NonSerialized]
-        private DalamudPluginInterface pluginInterface;
-
-        public void Initialize(DalamudPluginInterface pluginInterface)
+        public void Initialize()
         {
-            this.pluginInterface = pluginInterface;
-
             var needsResave = (Version != VersionLatest);
             switch (Version)
             {
@@ -55,7 +49,7 @@ namespace PatMe
 
         public void Save()
         {
-            pluginInterface.SavePluginConfig(this);
+            Service.pluginInterface.SavePluginConfig(this);
         }
     }
 }

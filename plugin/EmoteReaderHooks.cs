@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.ClientState.Objects.Types;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Hooking;
 using System;
 using System.Linq;
@@ -7,10 +7,10 @@ namespace PatMe
 {
     public class EmoteReaderHooks : IDisposable
     {
-        public Action<GameObject, ushort> OnEmote;
+        public Action<IPlayerCharacter, ushort>? OnEmote;
 
         public delegate void OnEmoteFuncDelegate(ulong unk, ulong instigatorAddr, ushort emoteId, ulong targetId, ulong unk2);
-        private readonly Hook<OnEmoteFuncDelegate> hookEmote;
+        private readonly Hook<OnEmoteFuncDelegate>? hookEmote;
 
         public bool IsValid = false;
 
@@ -18,14 +18,14 @@ namespace PatMe
         {
             try
             {
-                hookEmote = Service.sigScanner.HookFromSignature<OnEmoteFuncDelegate>("48 89 5C 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC ?? 48 8B 02 4C 8B F1", OnEmoteDetour);
+                hookEmote = Service.sigScanner.HookFromSignature<OnEmoteFuncDelegate>("40 53 56 41 54 41 57 48 83 EC ?? 48 8B 02", OnEmoteDetour);
                 hookEmote.Enable();
 
                 IsValid = true;
             }
             catch (Exception ex)
             {
-                Service.logger.Error(ex, "oh noes!");
+                Service.logger.Error(ex, "failed to hook emotes!");
             }
         }
 
@@ -42,12 +42,12 @@ namespace PatMe
 
             if (Service.clientState.LocalPlayer != null)
             {
-                if (targetId == Service.clientState.LocalPlayer.ObjectId)
+                if (targetId == Service.clientState.LocalPlayer.GameObjectId)
                 {
-                    var instigatorOb = Service.objectTable.FirstOrDefault(x => (ulong)x.Address == instigatorAddr);
+                    var instigatorOb = Service.objectTable.FirstOrDefault(x => (ulong)x.Address == instigatorAddr) as IPlayerCharacter;
                     if (instigatorOb != null)
                     {
-                        bool canCount = (instigatorOb.ObjectId != targetId);
+                        bool canCount = (instigatorOb.ObjectIndex != targetId);
 #if DEBUG
                         canCount = true;
 #endif 
@@ -59,7 +59,7 @@ namespace PatMe
                 }
             }
 
-            hookEmote.Original(unk, instigatorAddr, emoteId, targetId, unk2);
+            hookEmote?.Original(unk, instigatorAddr, emoteId, targetId, unk2);
         }
     }
 }

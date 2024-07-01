@@ -1,9 +1,8 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
+using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using System;
 using System.Collections.Generic;
 
 namespace PatMe
@@ -20,14 +19,15 @@ namespace PatMe
         private PluginWindowConfig windowConfig;
         private PluginWindowCounter windowCounters;
 
-        public Plugin(DalamudPluginInterface pluginInterface)
+        [PluginService] internal static IDalamudPluginInterface pluginInterface { get; private set; } = null!;
+
+        public Plugin()
         {
             pluginInterface.Create<Service>();
 
             Service.plugin = this;
-
+            Service.pluginInterface = pluginInterface;
             Service.pluginConfig = pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            Service.pluginConfig.Initialize(pluginInterface);
 
             CreateEmoteCounters();
 
@@ -35,7 +35,6 @@ namespace PatMe
             emoteDataManager.Initialize(); // config and counters must be ready
 
             Service.splashScreen = new SplashScreenUI();
-            Service.splashScreen.overlayImage = LoadEmbeddedImage("fan-kit-lala.png");
 
             uiReaderVoteMvp = new UIReaderVoteMvp();
             uiReaderBannerMIP = new UIReaderBannerMIP();
@@ -50,11 +49,11 @@ namespace PatMe
             Service.commandManager.AddHandler("/patcount", new(OnCommandCounterWindow) { HelpMessage = "Toggle counter UI" });
             pluginInterface.UiBuilder.Draw += OnDraw;
             pluginInterface.UiBuilder.OpenConfigUi += OnOpenConfig;
+            pluginInterface.UiBuilder.OpenMainUi += () => windowCounters.Toggle();
 
             emoteReader = new EmoteReaderHooks();
-            emoteReader.OnEmote += (instigator, emoteId) => emoteDataManager.OnEmote(instigator as PlayerCharacter, emoteId);
+            emoteReader.OnEmote += (instigator, emoteId) => emoteDataManager.OnEmote(instigator as IPlayerCharacter, emoteId);
 
-            Service.counterBroadcast = pluginInterface.GetIpcProvider<string, ushort, string, uint, object>("patMeEmoteCounter");
             Service.framework.Update += Framework_Update;
             Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
             Service.clientState.Login += ClientState_Login;
@@ -181,6 +180,11 @@ namespace PatMe
             windowCounters.Toggle();
         }
 
+        private void OnCommandTestImage(string command, string args)
+        {
+            Service.splashScreen.Show();
+        }
+
         private void OnDraw()
         {
             Service.splashScreen.Draw();
@@ -195,33 +199,6 @@ namespace PatMe
         public void OnCounterWindowConfigChanged()
         {
             windowCounters.UpdateConfig();
-        }
-
-        private IDalamudTextureWrap LoadEmbeddedImage(string name)
-        {
-            IDalamudTextureWrap resultImage = null;
-            try
-            {
-                var myAssembly = GetType().Assembly;
-                var myAssemblyName = myAssembly.GetName().Name;
-                var resourceName = $"{myAssemblyName}.assets.{name}";
-
-                var resStream = myAssembly.GetManifestResourceStream(resourceName);
-                if (resStream != null && resStream.Length > 0)
-                {
-                    var contentBytes = new byte[(int)resStream.Length];
-                    resStream.Read(contentBytes, 0, contentBytes.Length);
-
-                    resultImage = Service.pluginInterface.UiBuilder.LoadImage(contentBytes);
-                    resStream.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                Service.logger.Error(ex, "failed to load overlay image");
-            }
-
-            return resultImage;
         }
     }
 }

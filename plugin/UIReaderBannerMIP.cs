@@ -29,7 +29,7 @@ namespace PatMe
             var addonPtr = Service.gameGui.GetAddonByName("BannerMIP", 1);
             var addonBaseNode = (AtkUnitBase*)addonPtr;
 
-            if (addonBaseNode == null || addonBaseNode->RootNode == null || !addonBaseNode->RootNode->IsVisible)
+            if (addonBaseNode == null || addonBaseNode->RootNode == null || !addonBaseNode->RootNode->IsVisible())
             {
                 // reset when closed
                 cachedAddonPtr = IntPtr.Zero;
@@ -40,7 +40,7 @@ namespace PatMe
             cachedAddonPtr = addonPtr;
 
             var level0 = GUINodeUtils.GetImmediateChildNodes(addonBaseNode->RootNode);
-            var listRoot = GUINodeUtils.PickNode(level0, 2, 4);
+            var listRoot = GUINodeUtils.PickNode(level0 ?? null, 2, 4);
             var listNodes = GUINodeUtils.GetImmediateChildNodes(listRoot);
             var collectsPlayerNames = playerNames.Count == 0;
 
@@ -49,7 +49,7 @@ namespace PatMe
                 for (int idx = 0; idx < listNodes.Length; idx++)
                 {
                     var innerList = GUINodeUtils.GetChildNode(listNodes[idx]);
-                    if (innerList != null && innerList->IsVisible)
+                    if (innerList != null && innerList->IsVisible())
                     {
                         var nodeLastName = GUINodeUtils.PickChildNode(innerList, 20, 27);
                         var nodeFirstName = GUINodeUtils.PickChildNode(innerList, 21, 27);
@@ -70,7 +70,7 @@ namespace PatMe
             }
 
             var lastName = GUINodeUtils.GetNodeText(nodeLastName);
-            if (lastName.Length == 0 || lastName.StartsWith("pats:"))
+            if (lastName == null || lastName.Length == 0 || lastName.StartsWith("pats:"))
             {
                 return;
             }
@@ -88,7 +88,7 @@ namespace PatMe
                 playerNames.TryGetValue(entryIdx, out playerName);
             }
 
-            if (playerName.Length <= 1) // include separator
+            if (playerName == null || playerName.Length <= 1) // include separator
             {
                 return;
             }

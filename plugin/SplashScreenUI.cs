@@ -1,4 +1,4 @@
-﻿using Dalamud.Interface.Internal;
+﻿using Dalamud.Interface.Textures.TextureWraps;
 using ImGuiNET;
 using System;
 using System.Numerics;
@@ -15,10 +15,8 @@ namespace PatMe
             Disappear,
         }
 
-        public IDalamudTextureWrap overlayImage;
-
         private AnimPhase anim = AnimPhase.None;
-        private static readonly float[] animDuration = new float[] { 0.0f, 1.0f, 1.0f, 1.0f };
+        private static readonly float[] animDuration = [0.0f, 1.0f, 1.0f, 1.0f];
         private float animTimeRemaining = 0.0f;
 
         public void Show()
@@ -28,7 +26,13 @@ namespace PatMe
 
         public void Draw()
         {
-            if (anim == AnimPhase.None || overlayImage == null)
+            if (anim == AnimPhase.None)
+            {
+                return;
+            }
+
+            var overlayImage = GetOverlayImage();
+            if (overlayImage == null)
             {
                 return;
             }
@@ -95,7 +99,26 @@ namespace PatMe
 
         public void Dispose()
         {
-            overlayImage.Dispose();
         }
+
+        private IDalamudTextureWrap? GetOverlayImage()
+        {
+            var myAssembly = GetType().Assembly;
+            var myAssemblyName = myAssembly.GetName().Name;
+            var resourceName = $"{myAssemblyName}.assets.fan-kit-lala.png";
+
+            var textureResource = Service.textureProvider.GetFromManifestResource(myAssembly, resourceName);
+            if (textureResource != null)
+            {
+                var hasWrap = textureResource.TryGetWrap(out IDalamudTextureWrap? resultImage, out Exception? ex);
+                if (hasWrap)
+                {
+                    return resultImage;
+                }
+            }
+
+            return null;
+        }
+
     }
 }

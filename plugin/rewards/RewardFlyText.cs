@@ -5,7 +5,7 @@ namespace PatMe
 {
     internal class RewardFlyText : IEmoteReward
     {
-        public void OnCounterChanged(EmoteCounter counterOb, PlayerCharacter instigator, out bool stopProcessing)
+        public void OnCounterChanged(EmoteCounter counterOb, IPlayerCharacter instigator, out bool stopProcessing)
         {
             if (Service.pluginConfig.showFlyText)
             {

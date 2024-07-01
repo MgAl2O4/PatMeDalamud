@@ -35,7 +35,7 @@ namespace MgAl2O4.Utils
             return null;
         }
 
-        public static unsafe AtkResNode*[] GetImmediateChildNodes(AtkResNode* node)
+        public static unsafe AtkResNode*[]? GetImmediateChildNodes(AtkResNode* node)
         {
             var listAddr = new List<ulong>();
             if (node != null && node->ChildNode != null)
@@ -53,7 +53,7 @@ namespace MgAl2O4.Utils
             return ConvertToNodeArr(listAddr);
         }
 
-        public static unsafe AtkResNode*[] GetAllChildNodes(AtkResNode* node)
+        public static unsafe AtkResNode*[]? GetAllChildNodes(AtkResNode* node)
         {
             if (node != null)
             {
@@ -89,7 +89,7 @@ namespace MgAl2O4.Utils
             }
         }
 
-        private static unsafe AtkResNode*[] ConvertToNodeArr(List<ulong> listAddr)
+        private static unsafe AtkResNode*[]? ConvertToNodeArr(List<ulong> listAddr)
         {
             if (listAddr.Count > 0)
             {
@@ -105,7 +105,7 @@ namespace MgAl2O4.Utils
             return null;
         }
 
-        public static unsafe AtkResNode* PickNode(AtkResNode*[] nodes, int nodeIdx, int expectedNumNodes)
+        public static unsafe AtkResNode* PickNode(AtkResNode*[]? nodes, int nodeIdx, int expectedNumNodes)
         {
             if (nodes != null && nodes.Length == expectedNumNodes && nodeIdx < expectedNumNodes)
             {
@@ -120,7 +120,7 @@ namespace MgAl2O4.Utils
             return node != null ? node->ChildNode : null;
         }
 
-        public static unsafe string GetNodeTexturePath(AtkResNode* maybeImageNode)
+        public static unsafe string? GetNodeTexturePath(AtkResNode* maybeImageNode)
         {
             if (maybeImageNode != null && maybeImageNode->Type == NodeType.Image)
             {
@@ -144,7 +144,7 @@ namespace MgAl2O4.Utils
             return null;
         }
 
-        public static unsafe string GetNodeText(AtkResNode* maybeTextNode)
+        public static unsafe string? GetNodeText(AtkResNode* maybeTextNode)
         {
             if (maybeTextNode != null && maybeTextNode->Type == NodeType.Text)
             {
@@ -201,12 +201,12 @@ namespace MgAl2O4.Utils
         private class ParsableNode
         {
             public ulong nodeAddr;
-            public string content;
+            public string? content;
             public int childIdx;
             public int numChildren;
             public int depth;
             public NodeType type;
-            public string debugPath;
+            public string? debugPath;
         }
 
         private static unsafe bool RecursiveAppendParsableChildNodes(AtkResNode* node, int depth, int childIdx, List<ParsableNode> list, string debugPath)
@@ -217,7 +217,7 @@ namespace MgAl2O4.Utils
             if (node != null)
             {
                 // check if this node is interesting for parser (empty string is still interesting)
-                string content = GetNodeText(node);
+                string? content = GetNodeText(node);
                 content = (content != null) ? content : GetNodeTexturePath(node);
                 hasContent = (content != null);
 

@@ -32,7 +32,7 @@ namespace PatMe
 
             foreach (var kvp in emoteCounters)
             {
-                if (!mapDataByName.TryGetValue(kvp.OwnerName, out EmoteOwnerDB playerData))
+                if (!mapDataByName.TryGetValue(kvp.OwnerName, out EmoteOwnerDB? playerData))
                 {
                     continue;
                 }

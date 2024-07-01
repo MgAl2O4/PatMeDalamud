@@ -5,7 +5,7 @@ namespace PatMe
 {
     internal class RewardProgressNotify : IEmoteReward
     {
-        public void OnCounterChanged(EmoteCounter counterOb, PlayerCharacter instigator, out bool stopProcessing)
+        public void OnCounterChanged(EmoteCounter counterOb, IPlayerCharacter instigator, out bool stopProcessing)
         {
             var isSpecial = (counterOb.Value < 25) ? (counterOb.Value == 5 || counterOb.Value == 15) : ((counterOb.Value % 25) == 0);
             var canShow = isSpecial && Service.pluginConfig.showProgressNotify;

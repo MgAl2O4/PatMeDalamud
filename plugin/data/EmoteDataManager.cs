@@ -5,8 +5,8 @@ namespace PatMe
 {
     public class EmoteDataManager : IDisposable
     {
-        private EmoteOwnerDB ownerDB;
-        private string ownerName;
+        private EmoteOwnerDB? ownerDB;
+        private string ownerName = string.Empty;
         private ulong ownerCID;
 
         public void Initialize()
@@ -31,7 +31,7 @@ namespace PatMe
             OnOwnerChanged();
         }
 
-        public void OnEmote(PlayerCharacter instigator, ushort emoteId)
+        public void OnEmote(IPlayerCharacter instigator, ushort emoteId)
         {
             UpdateOwner();
             var needsSave = false;
@@ -43,9 +43,6 @@ namespace PatMe
                 {
                     continue;
                 }
-
-                uint instigatorWorld = (instigator != null) ? instigator.HomeWorld.Id : 0;
-                Service.counterBroadcast.SendMessage(counter.descSingular, emoteId, instigator.Name.ToString(), instigatorWorld);
 
                 needsSave = true;
             }

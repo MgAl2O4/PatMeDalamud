@@ -1,6 +1,5 @@
 ﻿using Dalamud.IoC;
 using Dalamud.Plugin;
-using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Services;
 using System.Collections.Generic;
 
@@ -8,15 +7,12 @@ namespace PatMe
 {
     internal class Service
     {
-        public static Plugin plugin;
+        public static Plugin plugin = null!;
+        public static IDalamudPluginInterface pluginInterface = null!;
+        public static Configuration pluginConfig = null!;
 
-        public static Configuration pluginConfig;
-        public static SplashScreenUI splashScreen;
-        public static List<EmoteCounter> emoteCounters;
-        public static ICallGateProvider<string, ushort, string, uint, object> counterBroadcast;
-
-        [PluginService]
-        public static DalamudPluginInterface pluginInterface { get; private set; } = null!;
+        public static SplashScreenUI splashScreen = null!;
+        public static List<EmoteCounter> emoteCounters = [];
 
         [PluginService]
         public static ICommandManager commandManager { get; private set; } = null!;
@@ -44,6 +40,9 @@ namespace PatMe
 
         [PluginService]
         public static IGameGui gameGui { get; private set; } = null!;
+
+        [PluginService]
+        public static ITextureProvider textureProvider { get; private set; } = null!;
 
         [PluginService]
         public static IPluginLog logger { get; private set; } = null!;

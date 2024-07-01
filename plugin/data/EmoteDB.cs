@@ -6,8 +6,8 @@ namespace PatMe
     [Serializable]
     public class EmoteOwnerDB
     {
-        public string Name { get; set; }
-        public ulong CID { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public ulong CID { get; set; } = 0;
         public List<EmoteCounterDB> Counters { get; set; } = new();
 
         [NonSerialized]
@@ -31,7 +31,7 @@ namespace PatMe
     [Serializable]
     public class EmoteCounterDB
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public uint Value { get; set; } = 0;
     }
 
@@ -39,7 +39,7 @@ namespace PatMe
     [Serializable]
     public class EmoteDataConfig
     {
-        public string OwnerName { get; set; }
+        public string OwnerName { get; set; } = string.Empty;
         public int EmoteId { get; set; } = 0;
         public int Counter { get; set; } = 0;
 

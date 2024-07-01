@@ -4,6 +4,6 @@ namespace PatMe
 {
     public interface IEmoteReward
     {
-        void OnCounterChanged(EmoteCounter counterOb, PlayerCharacter instigator, out bool stopProcessing);
+        void OnCounterChanged(EmoteCounter counterOb, IPlayerCharacter instigator, out bool stopProcessing);
     }
 }
