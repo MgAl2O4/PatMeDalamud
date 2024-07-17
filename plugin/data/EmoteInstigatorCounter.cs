@@ -16,6 +16,13 @@ namespace PatMe
                 return (other != null) && (HomeWorld == other.HomeWorld) && (Name == other.Name);
             }
 
+            public override bool Equals(object? obj) => Equals(obj as InstigatorData);
+
+            public override int GetHashCode()
+            {
+                return Name.GetHashCode() ^ HomeWorld.GetHashCode();
+            }
+
             public static InstigatorData Create(IPlayerCharacter instigator)
             {
                 return new InstigatorData() { Name = instigator.Name.ToString(), HomeWorld = instigator.HomeWorld.Id };
