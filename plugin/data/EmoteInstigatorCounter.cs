@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using PatMe.plugin.data;
 using System;
 using System.Collections.Generic;
 
@@ -22,7 +23,7 @@ namespace PatMe
             }
         }
 
-        private Dictionary<InstigatorData, uint> mapPlayerCounter = new();
+        private Dictionary<string, InstigatorWithCount> mapPlayerCounter = new();
 
         public void Clear()
         {
@@ -33,22 +34,24 @@ namespace PatMe
 
         public void Increment(InstigatorData key)
         {
-            if (mapPlayerCounter.TryGetValue(key, out var counter))
+            if (mapPlayerCounter.TryGetValue(key.Name, out var counter))
             {
-                mapPlayerCounter[key] = counter + 1;
+                counter.count++;
+                mapPlayerCounter[key.Name] = counter;
             }
             else
             {
-                mapPlayerCounter.Add(key, 1);
+                Service.logger.Debug("key {0} not found, adding one.", key);
+                mapPlayerCounter.Add(key.Name, new InstigatorWithCount(key,1));
             }
         }
 
         public uint GetCounter(IPlayerCharacter instigator)
         {
             var key = InstigatorData.Create(instigator);
-            if (mapPlayerCounter.TryGetValue(key, out var counter))
+            if (mapPlayerCounter.TryGetValue(key.Name, out var counter))
             {
-                return counter;
+                return counter.count;
             }
 
             return 0;
@@ -58,9 +61,9 @@ namespace PatMe
         {
             foreach (var kvp in mapPlayerCounter)
             {
-                if (kvp.Key.Name == playerName)
+                if (kvp.Value.data.Name == playerName)
                 {
-                    return kvp.Value;
+                    return kvp.Value.count;
                 }
             }
 
@@ -74,10 +77,11 @@ namespace PatMe
 
             foreach (var kvp in mapPlayerCounter)
             {
-                if (kvp.Value > score)
+                Service.logger.Debug("name: {0}: {1}", kvp.Value.data.Name,kvp.Value);
+                if (kvp.Value.count > score)
                 {
-                    score = kvp.Value;
-                    name = kvp.Key.Name;
+                    score = kvp.Value.count;
+                    name = kvp.Value.data.Name;
                 }
             }
 
