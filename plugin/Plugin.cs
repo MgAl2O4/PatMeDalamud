@@ -92,6 +92,8 @@ namespace PatMe
 
             emoteReader.Dispose();
             emoteDataManager.Dispose();
+            uiReaderVoteMvp.Dispose();
+            uiReaderBannerMIP.Dispose();
             windowSystem.RemoveAllWindows();
 
             Service.commandManager.RemoveHandler("/patme");

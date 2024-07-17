@@ -5,14 +5,15 @@ using System.Collections.Generic;
 
 namespace PatMe
 {
-    public class UIReaderBannerMIP
+    public class UIReaderBannerMIP : IDisposable
     {
         public const float UpdateInterval = 0.5f;
 
         private float updateTimeRemaining = 0.0f;
         private IntPtr cachedAddonPtr;
 
-        private Dictionary<int, string> playerNames = new Dictionary<int, string>();
+        private Dictionary<int, string> playerNames = new();
+        private List<NodeTextWrapper> textWrappers = new();
 
         public void Tick(float deltaSeconds)
         {
@@ -34,13 +35,14 @@ namespace PatMe
                 // reset when closed
                 cachedAddonPtr = IntPtr.Zero;
                 playerNames.Clear();
+                FreeTextWrappers();
                 return;
             }
 
             cachedAddonPtr = addonPtr;
 
             var level0 = GUINodeUtils.GetImmediateChildNodes(addonBaseNode->RootNode);
-            var listRoot = GUINodeUtils.PickNode(level0 ?? null, 2, 4);
+            var listRoot = GUINodeUtils.PickNode(level0 ?? null, 2, 3);
             var listNodes = GUINodeUtils.GetImmediateChildNodes(listRoot);
             var collectsPlayerNames = playerNames.Count == 0;
 
@@ -98,12 +100,28 @@ namespace PatMe
 
             if (numPats > 0)
             {
-                ((AtkTextNode*)nodeLastName)->SetText($"pats: {numPats}");
+                var textWrapper = new NodeTextWrapper($"pats: {numPats}");
+                textWrappers.Add(textWrapper);
+                ((AtkTextNode*)nodeLastName)->SetText(textWrapper.Get());
 
                 nodeCombined->NodeFlags &= ~NodeFlags.Visible; // hide
                 nodeLastName->NodeFlags |= NodeFlags.Visible; // show
                 nodeFirstName->NodeFlags |= NodeFlags.Visible; // show
             }
+        }
+
+        public void Dispose()
+        {
+            FreeTextWrappers();
+        }
+
+        private void FreeTextWrappers()
+        {
+            foreach (var wrapper in textWrappers)
+            {
+                wrapper.Free();
+            }
+            textWrappers.Clear();
         }
     }
 }

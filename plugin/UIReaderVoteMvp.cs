@@ -1,15 +1,17 @@
 ﻿using FFXIVClientStructs.FFXIV.Component.GUI;
 using MgAl2O4.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace PatMe
 {
-    public class UIReaderVoteMvp
+    public class UIReaderVoteMvp : IDisposable
     {
         public const float UpdateInterval = 0.5f;
 
         private float updateTimeRemaining = 0.0f;
         private IntPtr cachedAddonPtr;
+        private List<NodeTextWrapper> textWrappers = new();
 
         public void Tick(float deltaSeconds)
         {
@@ -30,6 +32,8 @@ namespace PatMe
             {
                 // reset when closed
                 cachedAddonPtr = IntPtr.Zero;
+                FreeTextWrappers();
+
                 return;
             }
 
@@ -60,17 +64,37 @@ namespace PatMe
                             if (numPats == 1)
                             {
                                 playerName += " [ 1 pat ]";
-                                textNode->SetText(playerName);
+
+                                var textWrapper = new NodeTextWrapper(playerName);
+                                textWrappers.Add(textWrapper);
+                                textNode->SetText(textWrapper.Get());
                             }
                             else if (numPats > 1)
                             {
                                 playerName += $" [ {numPats} pats ]";
-                                textNode->SetText(playerName);
+
+                                var textWrapper = new NodeTextWrapper(playerName);
+                                textWrappers.Add(textWrapper);
+                                textNode->SetText(textWrapper.Get());
                             }
                         }
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            FreeTextWrappers();
+        }
+
+        private void FreeTextWrappers()
+        {
+            foreach (var wrapper in textWrappers)
+            {
+                wrapper.Free();
+            }
+            textWrappers.Clear();
         }
     }
 }
