@@ -26,7 +26,7 @@ namespace PatMe
                 var useColor = 0xff00ff00;
 
                 bool isLongRange = (instigator != null) && (instigator.YalmDistanceX > 7 || instigator.YalmDistanceZ > 7);
-                bool isOwnerAFK = Service.clientState.LocalPlayer.OnlineStatus.Id == 17;
+                bool isOwnerAFK = Service.clientState.LocalPlayer.OnlineStatus.RowId == 17;
                 bool isOwnerInCombat = (Service.clientState.LocalPlayer.StatusFlags & StatusFlags.InCombat) != 0;
                 UpdateTimestamps(out int numPatsInLast3s);
 

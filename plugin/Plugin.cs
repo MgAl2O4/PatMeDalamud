@@ -75,7 +75,7 @@ namespace PatMe
             OnCounterWindowConfigChanged();
         }
 
-        private void ClientState_Logout()
+        private void ClientState_Logout(int type, int code)
         {
             emoteDataManager.OnLogout();
             windowCounters.IsOpen = false;

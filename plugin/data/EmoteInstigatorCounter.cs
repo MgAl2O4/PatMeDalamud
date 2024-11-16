@@ -25,7 +25,7 @@ namespace PatMe
 
             public static InstigatorData Create(IPlayerCharacter instigator)
             {
-                return new InstigatorData() { Name = instigator.Name.ToString(), HomeWorld = instigator.HomeWorld.Id };
+                return new InstigatorData() { Name = instigator.Name.ToString(), HomeWorld = instigator.HomeWorld.RowId };
             }
         }
 
