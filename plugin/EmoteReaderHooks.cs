@@ -47,11 +47,11 @@ namespace PatMe
                     var instigatorOb = Service.objectTable.FirstOrDefault(x => (ulong)x.Address == instigatorAddr) as IPlayerCharacter;
                     if (instigatorOb != null)
                     {
-                        bool canCount = (instigatorOb.ObjectIndex != targetId);
+                        bool canCountIsIncorrectButFuckIt = (instigatorOb.ObjectIndex != targetId);
 #if DEBUG
-                        canCount = true;
+                        canCountIsIncorrectButFuckIt = true;
 #endif 
-                        if (canCount)
+                        if (canCountIsIncorrectButFuckIt)
                         {
                             OnEmote?.Invoke(instigatorOb, emoteId);
                         }
