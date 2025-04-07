@@ -75,6 +75,8 @@ namespace PatMe
 
         private void UpdateCounterData()
         {
+            Service.emoteDataManager.ConditionalInitialize();
+
             if (counterUI.Count != Service.emoteCounters.Count)
             {
                 counterUI.Clear();

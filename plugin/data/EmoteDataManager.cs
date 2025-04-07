@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Utility;
 using System;
 
 namespace PatMe
@@ -8,10 +9,14 @@ namespace PatMe
         private EmoteOwnerDB? ownerDB;
         private string ownerName = string.Empty;
         private ulong ownerCID;
+        private bool isInitialized = false;
 
-        public void Initialize()
+        public void ConditionalInitialize()
         {
-            UpdateOwner();
+            if (!isInitialized)
+            {
+                UpdateOwner();
+            }
         }
 
         public void Dispose()
@@ -27,6 +32,7 @@ namespace PatMe
         {
             ownerName = string.Empty;
             ownerCID = 0;
+            isInitialized = false;
 
             OnOwnerChanged();
         }
@@ -63,6 +69,11 @@ namespace PatMe
 
         private void UpdateOwner()
         {
+            if (!ThreadSafety.IsMainThread)
+            {
+                return;
+            }
+
             if (Service.clientState == null || Service.clientState.LocalContentId == 0)
             {
                 return;
@@ -81,6 +92,7 @@ namespace PatMe
             {
                 ownerName = newName;
                 ownerCID = newCID;
+                isInitialized = true;
 
                 OnOwnerChanged();
             }
@@ -143,6 +155,8 @@ namespace PatMe
             // always assign all ids, some loaded DB matches may miss data (migration, manual edits, etc)
             ownerDB.CID = ownerCID;
             ownerDB.Name = ownerName;
+
+            Service.logger.Debug($"Loaded emote counters for: {ownerName} ({ownerCID})");
         }
 
         private void CopyDBValuesToCounters()

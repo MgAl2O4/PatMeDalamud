@@ -12,6 +12,7 @@ namespace PatMe
         public static Configuration pluginConfig = null!;
 
         public static SplashScreenUI splashScreen = null!;
+        public static EmoteDataManager emoteDataManager = null!;
         public static List<EmoteCounter> emoteCounters = [];
 
         [PluginService]

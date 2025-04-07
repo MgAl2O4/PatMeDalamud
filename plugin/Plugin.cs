@@ -13,7 +13,6 @@ namespace PatMe
 
         private readonly WindowSystem windowSystem = new("PatMe");
         private EmoteReaderHooks emoteReader;
-        private EmoteDataManager emoteDataManager;
         private UIReaderVoteMvp uiReaderVoteMvp;
         private UIReaderBannerMIP uiReaderBannerMIP;
         private PluginWindowConfig windowConfig;
@@ -31,9 +30,7 @@ namespace PatMe
 
             CreateEmoteCounters();
 
-            emoteDataManager = new EmoteDataManager();
-            emoteDataManager.Initialize(); // config and counters must be ready
-
+            Service.emoteDataManager = new EmoteDataManager();
             Service.splashScreen = new SplashScreenUI();
 
             uiReaderVoteMvp = new UIReaderVoteMvp();
@@ -52,7 +49,7 @@ namespace PatMe
             pluginInterface.UiBuilder.OpenMainUi += () => windowCounters.Toggle();
 
             emoteReader = new EmoteReaderHooks();
-            emoteReader.OnEmote += (instigator, emoteId) => emoteDataManager.OnEmote(instigator as IPlayerCharacter, emoteId);
+            emoteReader.OnEmote += (instigator, emoteId) => Service.emoteDataManager.OnEmote(instigator as IPlayerCharacter, emoteId);
 
             Service.framework.Update += Framework_Update;
             Service.clientState.TerritoryChanged += ClientState_TerritoryChanged;
@@ -71,13 +68,13 @@ namespace PatMe
 
         private void ClientState_Login()
         {
-            emoteDataManager.OnLogin();
+            Service.emoteDataManager.OnLogin();
             OnCounterWindowConfigChanged();
         }
 
         private void ClientState_Logout(int type, int code)
         {
-            emoteDataManager.OnLogout();
+            Service.emoteDataManager.OnLogout();
             windowCounters.IsOpen = false;
         }
 
@@ -91,7 +88,7 @@ namespace PatMe
             Service.splashScreen.Dispose();
 
             emoteReader.Dispose();
-            emoteDataManager.Dispose();
+            Service.emoteDataManager.Dispose();
             uiReaderVoteMvp.Dispose();
             uiReaderBannerMIP.Dispose();
             windowSystem.RemoveAllWindows();
@@ -144,6 +141,8 @@ namespace PatMe
 
         private void OnCommandListInChat(string command, string args)
         {
+            Service.emoteDataManager.ConditionalInitialize();
+
             foreach (var counter in Service.emoteCounters)
             {
                 if (counter == null || string.IsNullOrEmpty(counter.descSingular) || !counter.isActive)
