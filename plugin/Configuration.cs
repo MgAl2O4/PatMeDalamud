@@ -29,6 +29,8 @@ namespace PatMe
         public bool collapseCounterUI { get; set; } = true;
         public bool canTrackDotes { get; set; } = true;
         public bool canTrackHugs { get; set; } = true;
+        public bool canTrackHearts { get; set; } = true;
+        public bool canTrackFlowers { get; set; } = true;
 
         public void Initialize()
         {

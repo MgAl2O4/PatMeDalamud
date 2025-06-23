@@ -63,17 +63,23 @@ namespace PatMe
 
             bool canTrackDotes = Service.pluginConfig.canTrackDotes;
             bool canTrackHugs = Service.pluginConfig.canTrackHugs;
+            bool canTrackHearts = Service.pluginConfig.canTrackHearts;
+            bool canTrackFlowers = Service.pluginConfig.canTrackFlowers;
             bool bHasChangesEmotes = false;
 
             ImGui.Separator();
             ImGui.Text("Emotes:");
             bHasChangesEmotes = ImGui.Checkbox("Track: dote", ref canTrackDotes) || bHasChangesEmotes;
             bHasChangesEmotes = ImGui.Checkbox("Track: hug & embrace", ref canTrackHugs) || bHasChangesEmotes;
+            bHasChangesEmotes = ImGui.Checkbox("Track: heart", ref canTrackHearts) || bHasChangesEmotes;
+            bHasChangesEmotes = ImGui.Checkbox("Track: petals", ref canTrackFlowers) || bHasChangesEmotes;
 
             if (bHasChangesEmotes)
             {
                 Service.pluginConfig.canTrackDotes = canTrackDotes;
                 Service.pluginConfig.canTrackHugs = canTrackHugs;
+                Service.pluginConfig.canTrackHearts = canTrackHearts;
+                Service.pluginConfig.canTrackFlowers = canTrackFlowers;
 
                 var doteCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.DoteName);
                 if (doteCounter != null)
@@ -85,6 +91,18 @@ namespace PatMe
                 if (hugCounter != null)
                 {
                     hugCounter.isActive = canTrackHugs;
+                }
+                
+                var heartCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.HeartName);
+                if (heartCounter != null)
+                {
+                    heartCounter.isActive = canTrackHearts;
+                }
+                
+                var flowerCounter = Service.emoteCounters.Find(x => x.Name == EmoteConstants.FlowerName);
+                if (flowerCounter != null)
+                {
+                    flowerCounter.isActive = canTrackFlowers;
                 }
             }
 

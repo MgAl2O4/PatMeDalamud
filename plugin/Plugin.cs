@@ -110,7 +110,7 @@ namespace PatMe
             {
                 descSingular = "pat",
                 descPlural = "pats",
-                descUI = "Head pats",
+                descUI = "Headpats",
             };
             patCounter.Initialize(EmoteConstants.PatName, new int[] { EmoteConstants.PatEmoteID });
             patCounter.rewards = new List<IEmoteReward>() { new RewardSplashScreen(), new RewardProgressNotify(), new RewardFlyTextPat() };
@@ -137,6 +137,28 @@ namespace PatMe
             hugCounter.rewards = rewardsDefault;
             hugCounter.isActive = Service.pluginConfig.canTrackHugs;
             Service.emoteCounters.Add(hugCounter);
+            
+            var heartCounter = new EmoteCounter()
+            {
+                descSingular = "heart",
+                descPlural = "hearts",
+                descUI = "Hearts",
+            };
+            heartCounter.Initialize(EmoteConstants.HeartName, new int[] { EmoteConstants.HeartEmoteID });
+            heartCounter.rewards = rewardsDefault;
+            heartCounter.isActive = Service.pluginConfig.canTrackHearts;
+            Service.emoteCounters.Add(heartCounter);
+            
+            var flowerCounter = new EmoteCounter()
+            {
+                descSingular = "petals",
+                descPlural = "petals",
+                descUI = "Petals",
+            };
+            flowerCounter.Initialize(EmoteConstants.FlowerName, new int[] { EmoteConstants.FlowerEmoteID });
+            flowerCounter.rewards = rewardsDefault;
+            flowerCounter.isActive = Service.pluginConfig.canTrackFlowers;
+            Service.emoteCounters.Add(flowerCounter);
         }
 
         private void OnCommandListInChat(string command, string args)
