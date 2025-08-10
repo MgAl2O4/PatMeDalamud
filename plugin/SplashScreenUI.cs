@@ -1,5 +1,5 @@
-﻿using Dalamud.Interface.Textures.TextureWraps;
-using ImGuiNET;
+﻿using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Textures.TextureWraps;
 using System;
 using System.Numerics;
 
@@ -64,7 +64,7 @@ namespace PatMe
                 uint drawColor = 0xffffff | (uint)(drawAlpha * 255) << 24;
 
                 var drawList = ImGui.GetForegroundDrawList();
-                drawList.AddImage(overlayImage.ImGuiHandle, viewportCenter - drawHalfSize, viewportCenter + drawHalfSize, Vector2.Zero, Vector2.One, drawColor);
+                drawList.AddImage(overlayImage.Handle, viewportCenter - drawHalfSize, viewportCenter + drawHalfSize, Vector2.Zero, Vector2.One, drawColor);
             }
 
             // state transitions

@@ -28,7 +28,7 @@ namespace PatMe
         private unsafe void UpdateAddon()
         {
             var addonPtr = Service.gameGui.GetAddonByName("BannerMIP", 1);
-            var addonBaseNode = (AtkUnitBase*)addonPtr;
+            var addonBaseNode = (AtkUnitBase*)addonPtr.Address;
 
             if (addonBaseNode == null || addonBaseNode->RootNode == null || !addonBaseNode->RootNode->IsVisible())
             {
