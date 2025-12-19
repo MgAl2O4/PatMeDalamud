@@ -74,7 +74,7 @@ namespace PatMe
                 return;
             }
 
-            if (!Service.playerState.IsLoaded || Service.playerState.ContentId == 0)
+            if (Service.clientState == null || Service.playerState.ContentId == 0)
             {
                 return;
             }
