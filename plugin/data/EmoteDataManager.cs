@@ -74,18 +74,18 @@ namespace PatMe
                 return;
             }
 
-            if (Service.clientState == null || Service.clientState.LocalContentId == 0)
+            if (Service.clientState == null || Service.playerState.ContentId == 0)
             {
                 return;
             }
 
-            var localPlayer = Service.clientState.LocalPlayer;
+            var localPlayer = Service.objectTable.LocalPlayer;
             if (localPlayer == null || localPlayer.Name == null)
             {
                 return;
             }
 
-            var newCID = Service.clientState.LocalContentId;
+            var newCID = Service.playerState.ContentId;
             var newName = localPlayer.Name.TextValue;
 
             if (newCID != ownerCID || newName != ownerName)

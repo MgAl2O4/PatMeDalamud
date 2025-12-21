@@ -40,9 +40,9 @@ namespace PatMe
             // unk - some field of event framework singleton? doesn't matter here anyway
             // Service.logger.Info($"Emote >> unk:{unk:X}, instigatorAddr:{instigatorAddr:X}, emoteId:{emoteId}, targetId:{targetId:X}, unk2:{unk2:X}");
 
-            if (Service.clientState.LocalPlayer != null)
+            if (Service.objectTable.LocalPlayer != null)
             {
-                if (targetId == Service.clientState.LocalPlayer.GameObjectId)
+                if (targetId == Service.objectTable.LocalPlayer.GameObjectId)
                 {
                     var instigatorOb = Service.objectTable.FirstOrDefault(x => (ulong)x.Address == instigatorAddr) as IPlayerCharacter;
                     if (instigatorOb != null)
